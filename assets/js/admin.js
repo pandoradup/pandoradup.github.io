@@ -38,6 +38,7 @@ function message(selector, text, error = false) {
 }
 
 function showLogin() {
+  document.body.removeAttribute("data-admin-authenticated");
   $("[data-login-view]").classList.remove("hidden");
   $("[data-dashboard]").classList.add("hidden");
 }
@@ -46,6 +47,7 @@ function showDashboard(email) {
   $("[data-login-view]").classList.add("hidden");
   $("[data-dashboard]").classList.remove("hidden");
   $("[data-admin-email]").textContent = email;
+  document.body.setAttribute("data-admin-authenticated", "");
 }
 
 function renderProducts() {
@@ -410,7 +412,7 @@ function updatePhotoPreview(field) {
   if (!preview) {
     preview = document.createElement("div");
     preview.className = "photo-preview";
-    preview.style.aspectRatio = String(cropRatios[fileInput.name] || 1);
+    preview.style.aspectRatio = String(cropConfig(fileInput).ratio);
     field.prepend(preview);
   }
   preview.style.backgroundImage = url ? `url("${url}")` : "none";
@@ -781,17 +783,7 @@ async function initAdmin() {
     return;
   }
   supabase = await createSupabaseClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    try {
-      await verifyAdmin(session.user);
-      showDashboard(session.user.email);
-      await Promise.all([loadOrders(), loadCategories(), loadProducts(), loadContent()]);
-    } catch (error) {
-      showLogin();
-      message("[data-login-message]", error.message, true);
-    }
-  }
+  showLogin();
 }
 
 $("[data-login-form]").addEventListener("submit", async event => {
@@ -805,17 +797,21 @@ $("[data-login-form]").addEventListener("submit", async event => {
   if (error) return message("[data-login-message]", "Correo o contraseña incorrectos.", true);
   try {
     await verifyAdmin(data.user);
-    showDashboard(data.user.email);
     await Promise.all([loadOrders(), loadCategories(), loadProducts(), loadContent()]);
+    showDashboard(data.user.email);
+    event.target.reset();
   } catch (adminError) {
+    showLogin();
     message("[data-login-message]", adminError.message, true);
   }
 });
 
 $("[data-logout]").addEventListener("click", async () => {
-  await supabase.auth.signOut();
   showLogin();
+  await supabase.auth.signOut();
 });
+
+window.addEventListener("pagehide", showLogin);
 
 document.querySelectorAll("[data-tab]").forEach(button => {
   button.addEventListener("click", () => {

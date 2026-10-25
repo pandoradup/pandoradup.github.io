@@ -307,7 +307,8 @@ declare
   ordered_type text;
   ordered_category text;
 begin
-  if jsonb_typeof(coalesce(p_items, '[]'::jsonb)) <> 'array' then return false; end if;
+  if p_items is null or jsonb_typeof(p_items) <> 'array' then return false; end if;
+  if jsonb_array_length(p_items) = 0 then return false; end if;
   for item in select * from jsonb_array_elements(coalesce(p_items, '[]'::jsonb))
   loop
     item_id := (item->>'id')::bigint;
@@ -356,10 +357,7 @@ begin
         totals.size is not null
         and coalesce((component.size_stock->>totals.size)::integer, 0) < totals.quantity
       )
-       or (
-        totals.size is null
-        and component.stock < totals.quantity
-      )
+       or component.stock < (select sum(t.quantity) from totals t where t.product_id = totals.product_id)
   );
 end;
 $$;
@@ -439,6 +437,12 @@ declare
   ordered_category text;
   requirement record;
 begin
+  if new.items is null or jsonb_typeof(new.items) <> 'array' then
+    raise exception 'El pedido debe contener productos';
+  end if;
+  if jsonb_array_length(new.items) = 0 then
+    raise exception 'El pedido debe contener productos';
+  end if;
   for order_item in
     select element.value
     from jsonb_array_elements(new.items) as element(value)
@@ -529,6 +533,8 @@ drop trigger if exists decrease_stock_after_order on public.orders;
 create trigger decrease_stock_after_order
 before insert on public.orders
 for each row execute function public.decrease_stock_for_order();
+
+revoke all on function public.decrease_stock_for_order() from public, anon, authenticated;
 
 insert into public.site_content (key, value) values
   ('announcement', E'3 CUOTAS SIN INTERÉS\nENVÍOS A TODO EL PAÍS'),

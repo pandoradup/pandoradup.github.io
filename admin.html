@@ -8,6 +8,10 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Administración — pandora.dup</title>
+  <style>
+    body:not([data-admin-authenticated]) [data-dashboard],
+    body:not([data-admin-authenticated]) .modal { display: none !important; }
+  </style>
   <link rel="icon" type="image/png" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="apple-touch-icon" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -171,11 +175,8 @@
           <details class="settings-accordion">
             <summary>Portada principal</summary>
             <form class="content-form" data-content-section-form>
-              <label>Texto superior<input name="hero_kicker" placeholder="Ej: LO MÁS NUEVO · 2026" required></label>
               <label>Título<textarea name="hero_title" rows="2" required></textarea></label>
-              <label>Subtítulo<textarea name="hero_subtitle" rows="2" required>Combiná tus charms preferidos</textarea></label>
-              <label>Descripción<textarea name="hero_description" rows="3" required></textarea></label>
-              <label>Texto del botón<input name="hero_button_text" value="VER COLECCIÓN" required></label>
+              <label>Texto del botón<input name="hero_button_text" value="VER CATÁLOGO" required></label>
               <label>Destino del botón<input name="hero_button_url" value="index.html?category=todos" required></label>
               <button type="submit">GUARDAR PORTADA</button><p class="form-message" data-content-message></p>
             </form>
@@ -212,18 +213,6 @@
               <label>Párrafo 1<textarea name="materials_description_1" rows="3" required>Nuestros artículos están elaborados en aleación con terminación plateada, seleccionados para crear pulseras únicas y personalizadas.</textarea></label>
               <label>Párrafo 2<textarea name="materials_description_2" rows="3" required>Para conservar mejor su brillo y acabado, recomendamos evitar el contacto con agua o productos químicos.</textarea></label>
               <button type="submit">GUARDAR MATERIALES</button><p class="form-message" data-content-message></p>
-            </form>
-          </details>
-          <details class="settings-accordion">
-            <summary>Eventos</summary>
-            <form class="content-form" data-content-section-form>
-              <label>Subtítulo superior<input name="events_kicker" value="IDEAL PARA REGALAR" required></label>
-              <label>Título<textarea name="gift_title" rows="2" required>Un detalle especial para cada ocasión</textarea></label>
-              <label>Párrafo 1<textarea name="gift_description_1" rows="3" required>Nuestros accesorios son una opción especial para regalar algo lindo, personal y con significado.</textarea></label>
-              <label>Párrafo 2<textarea name="events_description_2" rows="4" required>Realizamos ventas minoristas y también preparamos pedidos para eventos especiales como cumpleaños de 15, celebraciones, souvenirs o detalles para invitados. Podés elegir pulseras, charms y combinaciones personalizadas para crear un regalo único.</textarea></label>
-              <label>Texto del botón<input name="events_button_text" value="CONSULTAR POR EVENTOS" required></label>
-              <label>Destino del botón<input name="events_button_url" value="https://wa.me/5492915072517?text=Hola%2C%20quiero%20consultar%20por%20accesorios%20para%20un%20evento" required></label>
-              <button type="submit">GUARDAR EVENTOS</button><p class="form-message" data-content-message></p>
             </form>
           </details>
           <details class="settings-accordion">
@@ -349,6 +338,6 @@
     </section>
   </div>
 
-  <script type="module" src="assets/js/admin.js?v=20261025-2"></script>
+  <script type="module" src="assets/js/admin.js?v=20261025-4"></script>
 </body>
 </html>
