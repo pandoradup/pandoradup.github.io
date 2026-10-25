@@ -182,12 +182,22 @@ Modalidad de entrega: ${order.delivery_method}${address}${order.address ? "\nEl 
 ¡Gracias por tu compra! Coordinamos por acá los detalles del pago y la entrega. 💕`;
 }
 
+function orderWhatsAppUrl(order, desktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  let phone = String(order.phone || "").replace(/\D/g, "").replace(/^00/, "");
+  // Local Argentine mobile numbers need the country and mobile prefixes.
+  if (/^\d{10}$/.test(phone)) phone = `549${phone}`;
+  else if (/^54\d{10}$/.test(phone)) phone = `549${phone.slice(2)}`;
+  const url = new URL(desktop ? "https://web.whatsapp.com/send" : `https://wa.me/${phone}`);
+  if (desktop) url.searchParams.set("phone", phone);
+  url.searchParams.set("text", orderWhatsAppMessage(order));
+  return url.href;
+}
+
 function renderOrders() {
   const activeOrders = orders.filter(order => ["pending", "contacted"].includes(order.status));
   const labels = { pending: "Sin contactar", contacted: "Contactado", completed: "Completado" };
   $("[data-order-list]").innerHTML = activeOrders.map(order => {
     const items = Array.isArray(order.items) ? order.items : [];
-    const phoneLink = String(order.phone).replace(/\D/g, "");
     return `
       <article class="admin-order">
         <div class="order-top">
@@ -207,7 +217,7 @@ function renderOrders() {
           ${items.map(item => `<li>${escapeHtml(item.name)}${item.size ? ` · Talle: ${escapeHtml(item.size)}` : ""} × ${Number(item.quantity) || 1}</li>`).join("")}
         </ul>
         <div class="order-actions">
-          <a href="https://wa.me/${phoneLink}?text=${encodeURIComponent(orderWhatsAppMessage(order))}" target="_blank" rel="noopener">CONTACTAR POR WHATSAPP ↗</a>
+          <a href="${escapeHtml(orderWhatsAppUrl(order))}" target="_blank" rel="noopener">CONTACTAR POR WHATSAPP ↗</a>
           ${order.status === "pending"
             ? `<button class="primary-order-action" type="button" data-order-status="contacted" data-order-id="${order.id}">MARCAR CONTACTADO</button>`
             : ""}
