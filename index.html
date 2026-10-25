@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="pandora.dup — accesorios que cuentan tu historia.">
   <title>pandora.dup</title>
+  <script>document.documentElement.setAttribute("data-content-pending", "");</script>
+  <style>
+    html[data-content-pending] [data-content],
+    html[data-content-pending] [data-announcement-track],
+    html[data-content-pending] [data-hero-button],
+    html[data-content-pending] [data-contact-button] { visibility: hidden; }
+  </style>
   <link rel="icon" type="image/png" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="apple-touch-icon" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="preconnect" href="https://hsahgureabomaahbikng.supabase.co" crossorigin>
@@ -14,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/styles.css?v=20261025-7">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20261025-8">
 </head>
 <body>
   <div class="announcement">
@@ -62,7 +69,7 @@
       <div class="hero-image" data-content-image="hero_image"></div>
       <div class="hero-copy">
         <h1 data-content="hero_title">Armá tu pulsera</h1>
-        <a class="button button-dark" href="index.html?category=todos" data-hero-button><span data-content="hero_button_text">VER CATÁLOGO</span> <span>↗</span></a>
+        <a class="button button-dark" href="index.html?category=todos" data-hero-button><span data-content="hero_button_text"></span> <span>↗</span></a>
       </div>
     </section>
 
@@ -89,10 +96,6 @@
         </div>
         <div class="filters" role="group" aria-label="Filtrar productos" data-category-filters>
           <button class="active" data-filter="todos">Todo</button>
-          <button data-filter="aros">Aros</button>
-          <button data-filter="collares">Collares</button>
-          <button data-filter="anillos">Anillos</button>
-          <button data-filter="pulseras">Pulseras</button>
         </div>
       </div>
       <div class="product-carousel">
@@ -101,6 +104,7 @@
         <button class="carousel-arrow carousel-arrow-next" type="button" data-carousel-next aria-label="Ver más productos">→</button>
       </div>
       <p class="empty-state" data-empty>No encontramos productos con esa búsqueda.</p>
+      <button type="button" class="button button-dark hidden" data-store-retry>VOLVER A INTENTAR</button>
     </section>
 
     <section class="section categories" id="categorias">
@@ -202,6 +206,6 @@
   <div class="toast" data-toast>Agregado a tu bolsa ♡</div>
 
   <script src="assets/js/promotions.js?v=20261025-2"></script>
-  <script src="assets/js/script.js?v=20261025-9"></script>
+  <script src="assets/js/script.js?v=20261025-10"></script>
 </body>
 </html>

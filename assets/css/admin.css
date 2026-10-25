@@ -166,3 +166,6 @@ input[type="file"] { padding: 12px; background: #f7f5f1; cursor: pointer; }
 .destination-frame span { position: absolute; left: 10px; bottom: 10px; padding: 6px 8px; color: white; background: rgba(32,29,26,.76); font-size: 8px; letter-spacing: 1px; }
 .adjust-upload-button { margin-top: 9px; padding: 9px 12px; color: var(--ink); background: white; border: 1px solid var(--ink); font-size: 8px; font-weight: 600; letter-spacing: 1px; }
 .product-photo-thumbnail .adjust-upload-button { position: absolute; z-index: 3; left: 6px; right: 6px; bottom: 6px; width: calc(100% - 12px); margin: 0; color: white; background: rgba(55,34,30,.88); border: 0; }
+
+/* Keep section defaults out of view until their saved data is ready. */
+.tab-panel[inert] { visibility: hidden; }

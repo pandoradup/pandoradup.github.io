@@ -11,14 +11,12 @@ let storeCategories = [];
 const catalogParams = new URLSearchParams(window.location.search);
 const requestedCategory = catalogParams.get("category");
 const requestedSearch = catalogParams.get("search");
-const defaultAnnouncement = "3 CUOTAS SIN INTERÉS\nENVÍOS A TODO EL PAÍS";
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
 })[character]);
 
 function renderAnnouncement(value) {
-  const normalized = value.trim() === "3 CUOTAS SIN INTERÉS" ? defaultAnnouncement : value;
-  const messages = normalized.split(/\r?\n/).map(message => message.trim()).filter(Boolean);
+  const messages = String(value ?? "").split(/\r?\n/).map(message => message.trim()).filter(Boolean);
   const repeated = [...messages, ...messages];
   document.querySelector("[data-announcement-track]").innerHTML = repeated
     .map(message => `<span>${escapeHtml(message)}</span><i aria-hidden="true">✦</i>`)
@@ -134,25 +132,7 @@ function mixProducts(items) {
   return mixed;
 }
 
-function menuHref(item) {
-  if (item.target_type === "category") {
-    return `index.html?category=${encodeURIComponent(item.target_value)}`;
-  }
-  if (item.target_type === "section") {
-    return item.target_value === "inicio"
-      ? "index.html"
-      : `index.html#${encodeURIComponent(item.target_value.replace(/^#/, ""))}`;
-  }
-  if (item.target_type === "page" && /^[a-z0-9][a-z0-9._/-]*(?:[?#].*)?$/i.test(item.target_value) && !item.target_value.includes("..")) {
-    return item.target_value;
-  }
-  if (item.target_type === "external" && /^https?:\/\//i.test(item.target_value)) {
-    return item.target_value;
-  }
-  return "#";
-}
-
-function renderMainMenu(menuItems) {
+function renderMainMenu() {
   const categoryLinks = storeCategories.map(category =>
     `<a href="index.html?category=${encodeURIComponent(category.id)}">${escapeHtml(category.name)}</a>`
   ).join("");
@@ -246,13 +226,11 @@ async function refreshProductAvailability() {
 
 async function refreshPublicMenu() {
   if (!storeClient) return;
-  const [{ data, error }, { data: categories, error: categoriesError }] = await Promise.all([
-    storeClient.from("menu_items").select("*").eq("published", true).order("sort_order").order("id"),
-    storeClient.from("categories").select("id,name").eq("published", true).order("sort_order")
-  ]);
-  if (!error && !categoriesError) {
+  const { data: categories, error: categoriesError } = await storeClient
+    .from("categories").select("id,name").eq("published", true).order("sort_order");
+  if (!categoriesError) {
     storeCategories = categories || [];
-    renderMainMenu(data || []);
+    renderMainMenu();
   }
 }
 
@@ -408,16 +386,7 @@ function applyStoreContent(content) {
       image.style.backgroundPosition = `${x}% ${y}%`;
     }
   });
-  document.querySelectorAll("[data-balanced-lines]").forEach(element => {
-    const text = element.textContent.trim();
-    const midpoint = Math.floor(text.length / 2);
-    const before = text.lastIndexOf(" ", midpoint);
-    const after = text.indexOf(" ", midpoint);
-    const breakAt = before < 0 ? after : after < 0 || midpoint - before <= after - midpoint ? before : after;
-    if (breakAt > 0) {
-      element.replaceChildren(text.slice(0, breakAt), document.createElement("br"), text.slice(breakAt + 1));
-    }
-  });
+
 }
 
 async function loadStoreData() {
@@ -428,7 +397,10 @@ async function loadStoreData() {
     storeClient = client;
     // Paint the homepage as soon as its content arrives, independently of stock.
     const contentRequest = client.from("site_content").select("key,value").then(result => {
-      if (!result.error && result.data) applyStoreContent(result.data);
+      if (!result.error && result.data) {
+        applyStoreContent(result.data);
+        document.documentElement.removeAttribute("data-content-pending");
+      }
       return result;
     });
     const storeRequest = Promise.all([
@@ -460,6 +432,7 @@ async function loadStoreData() {
       mixedProducts = mixProducts(products);
       renderProducts();
     }
+    if (contentError) throw new Error("No se pudieron cargar los textos de la tienda.");
     const contentValues = !contentError
       ? Object.fromEntries(content.map(item => [item.key, item.value]))
       : {};
@@ -470,10 +443,10 @@ async function loadStoreData() {
       storeCategories = categories || [];
       renderMainMenu();
     }
-    if (categories?.length) {
+    if (!categoriesError) {
       const categoryNames = categories.map(category => category.name.toLocaleLowerCase("es-AR"));
       document.querySelector("[data-search-input]").placeholder =
-        `Buscar ${categoryNames.slice(0, 3).join(", ")}${categoryNames.length > 3 ? "..." : ""}`;
+        categoryNames.length ? `Buscar ${categoryNames.slice(0, 3).join(", ")}${categoryNames.length > 3 ? "..." : ""}` : "Buscar productos...";
       document.querySelector("[data-category-filters]").innerHTML =
         `<button class="active" data-filter="todos">Todo</button>` +
         categories.map(category => `<button data-filter="${escapeHtml(category.id)}">${escapeHtml(category.name)}</button>`).join("");
@@ -506,6 +479,7 @@ async function loadStoreData() {
     const emptyState = document.querySelector("[data-empty]");
     emptyState.textContent = "No pudimos conectar con la tienda. Tus productos siguen guardados; volvé a intentar en unos minutos.";
     emptyState.classList.add("visible", "load-error");
+    document.querySelector("[data-store-retry]").classList.remove("hidden");
     document.querySelector("[data-products]").setAttribute("aria-busy", "false");
   }
 }
@@ -862,6 +836,7 @@ grid.addEventListener("pointermove", event => {
 });
 grid.addEventListener("pointerup", () => { photoGesture = null; });
 grid.addEventListener("pointercancel", () => { photoGesture = null; });
+document.querySelector("[data-store-retry]").addEventListener("click", () => window.location.reload());
 renderMainMenu();
 renderProducts();
 updateCart();
