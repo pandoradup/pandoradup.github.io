@@ -162,7 +162,6 @@ function renderMainMenu(menuItems) {
     </div>
     <a href="index.html#promos">Promos</a>
     <a href="index.html#materiales">Materiales</a>
-    <a href="index.html#eventos">Eventos</a>
     <a href="index.html#contacto">Contacto</a>`;
 }
 
@@ -377,12 +376,6 @@ function applyStoreContent(content) {
       const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
         !item.value.includes("..");
       if (safeDestination) document.querySelector("[data-hero-button]").href = item.value;
-      return;
-    }
-    if (item.key === "events_button_url") {
-      const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
-        !item.value.includes("..");
-      if (safeDestination) document.querySelector("[data-events-button]").href = item.value;
       return;
     }
     if (item.key === "contact_button_url") {
