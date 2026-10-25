@@ -311,14 +311,14 @@ footer a, footer div > span { color: #bdb8ae; font-size: 11px; }
   .search-panel { top: 141px; }
   .hero { min-height: auto; height: auto; max-height: none; display: flex; flex-direction: column; }
   .hero-image { min-height: 63vh; background-position: center; }
-  .hero-copy { padding: 55px 7vw 70px; }
+  .hero-copy { padding: 55px 7vw 28px; }
   h1 { font-size: 56px; }
   .benefits { grid-template-columns: 1fr; }
   .benefits div { border-right: 0; border-bottom: 1px solid var(--line); }
   .section { padding: 80px 5vw; }
   .products-section { padding-bottom: 35px; }
   .categories { padding-top: 35px; }
-  .promotions-section { padding: 60px 5vw; }
+  .promotions-section { padding: 28px 5vw 60px; }
   .section-heading { align-items: flex-start; flex-direction: column; }
   .product-grid { margin-inline: -5vw; padding-inline: 5vw; display: flex !important; flex-flow: row nowrap !important; gap: 10px; }
   .product-grid > .product-card { width: 42vw; min-width: 0; flex: 0 0 42vw; }
