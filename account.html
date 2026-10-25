@@ -26,7 +26,7 @@
       <p class="tracking-help" id="tracking-help">Ingresá el número que aparece en tu comprobante. No necesitás una cuenta.</p>
       <form data-tracking-form>
         <label for="order-number">Número de pedido</label>
-        <input id="order-number" name="orderNumber" type="text" required maxlength="13" pattern="([Pp][Aa][Nn][0-9]{8}[Aa][Rr]|[A-Fa-f0-9]{8})" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="tracking-help" placeholder="Ej.: PAN12345678AR">
+        <input id="order-number" name="orderNumber" type="text" required maxlength="13" pattern="([Pp][Aa][Nn]([0-9]{4}|[0-9]{8})[Aa][Rr]|[A-Fa-f0-9]{8})" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="tracking-help" placeholder="Ej.: PAN1234AR">
         <button class="submit-button" type="submit">CONSULTAR PEDIDO</button>
         <p class="form-message" data-tracking-message role="status" aria-live="polite"></p>
       </form>
@@ -39,6 +39,6 @@
     </section>
   </main>
 
-  <script type="module" src="assets/js/account.js?v=20261025-2"></script>
+  <script type="module" src="assets/js/account.js?v=20261025-3"></script>
 </body>
 </html>

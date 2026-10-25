@@ -269,10 +269,10 @@ document.querySelectorAll("[data-edit-step]").forEach(button => {
 });
 
 function generateOrderNumber() {
-  // Rejection sampling keeps every eight-digit suffix equally likely.
+  // Rejection sampling keeps every four-digit suffix equally likely.
   const random = new Uint32Array(1);
-  do { crypto.getRandomValues(random); } while (random[0] >= 4200000000);
-  return `PAN${String(random[0] % 100000000).padStart(8, "0")}AR`;
+  do { crypto.getRandomValues(random); } while (random[0] >= 4294960000);
+  return `PAN${String(random[0] % 10000).padStart(4, "0")}AR`;
 }
 
 document.querySelector("[data-order-form]").addEventListener("submit", async event => {

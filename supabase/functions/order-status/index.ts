@@ -31,7 +31,7 @@ export async function handleRequest(req: Request): Promise<Response> {
     let input;
     try { input = JSON.parse(body); } catch { return respond({ error: "Solicitud inválida." }, 400); }
     const number = typeof input?.orderNumber === "string" ? input.orderNumber.trim().toUpperCase() : "";
-    if (!/^(?:PAN[0-9]{8}AR|[A-F0-9]{8})$/.test(number)) return respond({ error: "Ingresá el número completo de tu comprobante, por ejemplo PAN12345678AR." }, 400);
+    if (!/^(?:PAN(?:[0-9]{4}|[0-9]{8})AR|[A-F0-9]{8})$/.test(number)) return respond({ error: "Ingresá el número completo de tu comprobante, por ejemplo PAN1234AR." }, 400);
 
     const url = new URL("/rest/v1/orders", Deno.env.get("SUPABASE_URL"));
     url.searchParams.set("select", "status");
