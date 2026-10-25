@@ -192,6 +192,7 @@ function renderOrders() {
             ? `<button class="primary-order-action" type="button" data-order-status="contacted" data-order-id="${order.id}">MARCAR CONTACTADO</button>`
             : ""}
           <button type="button" data-order-status="completed" data-order-id="${order.id}">MARCAR COMPLETADO</button>
+          <button class="danger-action" type="button" data-order-status="cancelled" data-order-id="${order.id}">CANCELAR PEDIDO</button>
         </div>
       </article>
     `;
@@ -836,8 +837,9 @@ $("[data-refresh-orders]").addEventListener("click", loadOrders);
 $("[data-order-list]").addEventListener("click", async event => {
   const button = event.target.closest("[data-order-status]");
   if (!button) return;
-  button.disabled = true;
   const status = button.dataset.orderStatus;
+  if (status === "cancelled" && !confirm("¿Cancelar este pedido y devolver sus productos al stock?")) return;
+  button.disabled = true;
   const update = { status };
   if (status === "contacted") update.contacted_at = new Date().toISOString();
   if (status === "completed") update.completed_at = new Date().toISOString();
@@ -850,7 +852,8 @@ $("[data-order-list]").addEventListener("click", async event => {
     alert(error.message);
     return;
   }
-  await loadOrders();
+  await Promise.all([loadOrders(), loadProducts()]);
+  if (status === "cancelled") localStorage.setItem("pandoraProductsUpdatedAt", String(Date.now()));
 });
 
 $("[data-new-product]").addEventListener("click", openNewProduct);
