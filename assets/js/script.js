@@ -372,6 +372,10 @@ function applyStoreContent(content) {
       renderAnnouncement(item.value);
       return;
     }
+    if (item.key === "hero_button_text" && item.value.trim().toLocaleUpperCase("es-AR") === "VER COLECCIÓN") {
+      document.querySelector('[data-content="hero_button_text"]').textContent = "VER CATÁLOGO";
+      return;
+    }
     if (item.key === "hero_button_url") {
       const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
         !item.value.includes("..");

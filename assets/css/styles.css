@@ -57,6 +57,7 @@ button { color: inherit; cursor: pointer; }
 
 .hero { min-height: 560px; height: calc(100vh - 161px); max-height: 720px; position: relative; display: grid; grid-template-columns: 57% 43%; background: var(--cream); overflow: hidden; }
 .hero-image { background: var(--cream) center/cover no-repeat; }
+.hero-copy > [data-hero-button] { margin-top: 28px; }
 .hero-copy { align-self: center; padding: clamp(42px, 5vw, 72px); max-width: 620px; }
 .eyebrow { margin: 0 0 18px; font-size: 11px; font-weight: 600; letter-spacing: 2.4px; }
 h1, h2, blockquote { font-family: "Montserrat", Arial, sans-serif; font-weight: 500; }
