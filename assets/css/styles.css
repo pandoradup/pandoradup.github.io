@@ -208,7 +208,7 @@ h1 em, h2 em { font-weight: 400; color: #8f726a; }
 .whatsapp-contact:hover { background: #453f38; }
 .whatsapp-area > .in-person-note { margin: 2cm 0 0; padding-top: 22px; color: #493e39; border-top: 1px solid rgba(73,62,57,.22); font: 600 15px/1.65 "Montserrat", Arial, sans-serif; letter-spacing: .5px; text-transform: none; }
 
-footer { padding: 70px 5vw 25px; display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 50px; color: #eeeae0; background: var(--ink); }
+footer { padding: 70px 5vw 25px; display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 50px; color: #eeeae0; background: var(--ink); }
 .footer-brand { align-items: flex-start; }
 .footer-brand-logo { width: 290px; height: 72px; display: block; background: url("../images/branding/pandora-dup-logo.png?v=3") center 50% / 310px auto no-repeat; filter: invert(1); mix-blend-mode: screen; }
 footer div:not(.footer-brand) { display: flex; flex-direction: column; gap: 12px; }
