@@ -715,3 +715,6 @@ drop trigger if exists restore_stock_on_order_cancellation on public.orders;
 create trigger restore_stock_on_order_cancellation
 before update of status on public.orders
 for each row execute function public.restore_stock_on_order_cancellation();
+-- Separate delivery tracking keeps buyer and seller notifications independent.
+alter table public.orders add column if not exists notification_sent_at timestamptz;
+alter table public.orders add column if not exists customer_confirmation_sent_at timestamptz;
