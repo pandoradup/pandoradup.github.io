@@ -197,7 +197,7 @@ function renderPromotionShowcase() {
   section.classList.toggle("hidden", activePromotions.length === 0);
   document.querySelector("[data-store-promotions]").innerHTML = activePromotions.map(promotion => `
     <article class="promotion-card">
-      ${promotion.image_url ? `<img class="promotion-card-image" src="${escapeHtml(promotion.image_url)}" alt="">` : ""}
+      ${promotion.image_url ? `<img class="promotion-card-image" loading="lazy" decoding="async" src="${escapeHtml(promotion.image_url)}" alt="">` : ""}
       <h3>${escapeHtml(promotion.name)}</h3>
       <p>Agregá ${joinPromotionRequirements(promotion.requirements.map(promotionRequirementText))}.</p>
       <strong>${promotion.type === "gift" ? `${escapeHtml(promotion.gift)} de regalo` : money(promotion.price)}</strong>
@@ -266,8 +266,8 @@ function renderProducts() {
     return `
     <article class="product-card">
       <div class="product-image${secondaryImage ? " has-secondary-image" : ""}" data-product-open="${product.id}">
-        <img class="product-image-primary" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy">
-        ${secondaryImage ? `<img class="product-image-secondary" src="${escapeHtml(secondaryImage)}" alt="" loading="lazy">` : ""}
+        <img class="product-image-primary" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async">
+        ${secondaryImage ? `<img class="product-image-secondary" data-hover-src="${escapeHtml(secondaryImage)}" alt="" loading="lazy" decoding="async">` : ""}
         ${availableStock === 0
           ? `<span class="product-badge out-of-stock">SIN STOCK</span>`
           : availableStock <= 2
@@ -343,31 +343,118 @@ function closeProductDetail() {
   detailProduct = null;
 }
 
+// Background images below the fold should not compete with the storefront hero.
+const backgroundObserver = "IntersectionObserver" in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(({ target, isIntersecting }) => {
+        if (!isIntersecting) return;
+        target.style.backgroundImage = `url(${JSON.stringify(target.dataset.backgroundSrc)})`;
+        backgroundObserver.unobserve(target);
+      });
+    }, { rootMargin: "250px" })
+  : null;
+
+function setStoreBackground(element, url, priority = false) {
+  if (!url) return;
+  element.dataset.backgroundSrc = url;
+  if (priority || !backgroundObserver) {
+    element.style.backgroundImage = `url(${JSON.stringify(url)})`;
+  } else {
+    backgroundObserver.observe(element);
+  }
+}
+
+function applyStoreContent(content) {
+  const contentValues = Object.fromEntries(content.map(item => [item.key, item.value]));
+  content.forEach(item => {
+    if (document.body.classList.contains("catalog-view") &&
+        ["products_kicker", "products_title"].includes(item.key)) return;
+    if (item.key === "announcement") {
+      renderAnnouncement(item.value);
+      return;
+    }
+    if (item.key === "hero_button_url") {
+      const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
+        !item.value.includes("..");
+      if (safeDestination) document.querySelector("[data-hero-button]").href = item.value;
+      return;
+    }
+    if (item.key === "events_button_url") {
+      const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
+        !item.value.includes("..");
+      if (safeDestination) document.querySelector("[data-events-button]").href = item.value;
+      return;
+    }
+    if (item.key === "contact_button_url") {
+      const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
+        !item.value.includes("..");
+      if (safeDestination) document.querySelector("[data-contact-button]").href = item.value;
+      return;
+    }
+    if (item.key === "hero_kicker" && item.value.trim().toLocaleUpperCase("es-AR") === "NUEVA COLECCIÓN · 2026") {
+      document.querySelector('[data-content="hero_kicker"]').textContent = "LO MÁS NUEVO · 2026";
+      return;
+    }
+    if (item.key === "hero_title" && item.value.includes(",")) {
+      const [title, ...subtitleParts] = item.value.split(",");
+      document.querySelector('[data-content="hero_title"]').textContent = title.trim();
+      document.querySelector('[data-content="hero_subtitle"]').textContent =
+        subtitleParts.join(" ").trim().replace(/[.,]$/, "");
+      return;
+    }
+    const element = document.querySelector(`[data-content="${item.key}"]`);
+    if (element) {
+      if (element.hasAttribute("data-multiline-content")) renderMultilineContent(element, item.value);
+      else element.textContent = item.value;
+    }
+    const image = document.querySelector(`[data-content-image="${item.key}"]`);
+    if (image) {
+      setStoreBackground(image, item.value, item.key === "hero_image");
+      const x = contentValues[`${item.key}_position_x`] || 50;
+      const y = contentValues[`${item.key}_position_y`] || 50;
+      image.style.backgroundPosition = `${x}% ${y}%`;
+    }
+  });
+  document.querySelectorAll("[data-balanced-lines]").forEach(element => {
+    const text = element.textContent.trim();
+    const midpoint = Math.floor(text.length / 2);
+    const before = text.lastIndexOf(" ", midpoint);
+    const after = text.indexOf(" ", midpoint);
+    const breakAt = before < 0 ? after : after < 0 || midpoint - before <= after - midpoint ? before : after;
+    if (breakAt > 0) {
+      element.replaceChildren(text.slice(0, breakAt), document.createElement("br"), text.slice(breakAt + 1));
+    }
+  });
+}
+
 async function loadStoreData() {
   try {
-    const config = await import("./supabase-config.js");
-    if (!config.isSupabaseConfigured) return;
-    const { createSupabaseClient } = await import("./supabase-client.js");
+    const { createSupabaseClient, isSupabaseConfigured } = await import("./supabase-client.js");
+    if (!isSupabaseConfigured) return;
     const client = await createSupabaseClient();
     storeClient = client;
+    // Paint the homepage as soon as its content arrives, independently of stock.
+    const contentRequest = client.from("site_content").select("key,value").then(result => {
+      if (!result.error && result.data) applyStoreContent(result.data);
+      return result;
+    });
     const storeRequest = Promise.all([
       client.rpc("get_store_products"),
       client.from("products").select("id,size_stock"),
-      client.from("site_content").select("key,value"),
-      client.from("categories").select("*").eq("published", true).order("sort_order"),
-      client.from("menu_items").select("*").eq("published", true).order("sort_order").order("id")
+      contentRequest,
+      client.from("categories").select("*").eq("published", true).order("sort_order")
     ]);
+    let timeoutId;
     const storeTimeout = new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error("La conexión con la tienda demoró demasiado.")), 8000);
+      timeoutId = window.setTimeout(() => reject(new Error("La conexión con la tienda demoró demasiado.")), 8000);
     });
     const [
       { data: remoteProducts, error: productsError },
       { data: sizeRows },
       { data: content, error: contentError },
-      { data: categories, error: categoriesError },
-      { data: menuItems, error: menuError }
-    ] = await Promise.race([storeRequest, storeTimeout]);
-    if (productsError && contentError && categoriesError && menuError) {
+      { data: categories, error: categoriesError }
+    ] = await Promise.race([storeRequest, storeTimeout]).finally(() => clearTimeout(timeoutId));
+    if (productsError && contentError && categoriesError) {
       throw new Error("El servicio de la tienda no está disponible.");
     }
     if (!productsError && remoteProducts?.length) {
@@ -385,70 +472,9 @@ async function loadStoreData() {
     promotions = window.PromotionEngine.parse(contentValues.promotions_config);
     localStorage.setItem("pandoraPromotions", JSON.stringify(promotions));
     renderPromotionShowcase();
-    if (!contentError) {
-      content.forEach(item => {
-        if (document.body.classList.contains("catalog-view") &&
-            ["products_kicker", "products_title"].includes(item.key)) return;
-        if (item.key === "announcement") {
-          renderAnnouncement(item.value);
-          return;
-        }
-        if (item.key === "hero_button_url") {
-          const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
-            !item.value.includes("..");
-          if (safeDestination) document.querySelector("[data-hero-button]").href = item.value;
-          return;
-        }
-        if (item.key === "events_button_url") {
-          const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
-            !item.value.includes("..");
-          if (safeDestination) document.querySelector("[data-events-button]").href = item.value;
-          return;
-        }
-        if (item.key === "contact_button_url") {
-          const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
-            !item.value.includes("..");
-          if (safeDestination) document.querySelector("[data-contact-button]").href = item.value;
-          return;
-        }
-        if (item.key === "hero_kicker" && item.value.trim().toLocaleUpperCase("es-AR") === "NUEVA COLECCIÓN · 2026") {
-          document.querySelector('[data-content="hero_kicker"]').textContent = "LO MÁS NUEVO · 2026";
-          return;
-        }
-        if (item.key === "hero_title" && item.value.includes(",")) {
-          const [title, ...subtitleParts] = item.value.split(",");
-          document.querySelector('[data-content="hero_title"]').textContent = title.trim();
-          document.querySelector('[data-content="hero_subtitle"]').textContent =
-            subtitleParts.join(" ").trim().replace(/[.,]$/, "");
-          return;
-        }
-        const element = document.querySelector(`[data-content="${item.key}"]`);
-        if (element) {
-          if (element.hasAttribute("data-multiline-content")) renderMultilineContent(element, item.value);
-          else element.textContent = item.value;
-        }
-        const image = document.querySelector(`[data-content-image="${item.key}"]`);
-        if (image) {
-          image.style.backgroundImage = `url("${item.value}")`;
-          const x = contentValues[`${item.key}_position_x`] || 50;
-          const y = contentValues[`${item.key}_position_y`] || 50;
-          image.style.backgroundPosition = `${x}% ${y}%`;
-        }
-      });
-      document.querySelectorAll("[data-balanced-lines]").forEach(element => {
-        const text = element.textContent.trim();
-        const midpoint = Math.floor(text.length / 2);
-        const before = text.lastIndexOf(" ", midpoint);
-        const after = text.indexOf(" ", midpoint);
-        const breakAt = before < 0 ? after : after < 0 || midpoint - before <= after - midpoint ? before : after;
-        if (breakAt > 0) {
-          element.replaceChildren(text.slice(0, breakAt), document.createElement("br"), text.slice(breakAt + 1));
-        }
-      });
-    }
-    if (!menuError) {
+    if (!categoriesError) {
       storeCategories = categories || [];
-      renderMainMenu(menuItems || []);
+      renderMainMenu();
     }
     if (categories?.length) {
       const categoryNames = categories.map(category => category.name.toLocaleLowerCase("es-AR"));
@@ -461,10 +487,13 @@ async function loadStoreData() {
         const imageUrl = category.image_url || contentValues[`category_${category.id}_image`] || "";
         return `
           <a href="#productos" data-filter-link="${escapeHtml(category.id)}" class="category"
-            ${imageUrl ? `style="background-image:url('${imageUrl}')"` : ""}>
+            ${imageUrl ? `data-background-src="${escapeHtml(imageUrl)}"` : ""}>
             <span>${escapeHtml(category.name)}</span>
           </a>`;
       }).join("");
+      document.querySelectorAll("[data-store-categories] [data-background-src]").forEach(element =>
+        setStoreBackground(element, element.dataset.backgroundSrc)
+      );
       document.querySelectorAll("[data-filter]").forEach(button =>
         button.addEventListener("click", () => setFilter(button.dataset.filter))
       );
@@ -811,6 +840,18 @@ window.addEventListener("focus", async () => {
   await refreshProductAvailability();
 });
 
+// Secondary product photos are only needed when someone interacts with the card.
+function loadHoverImage(event) {
+  const card = event.target.closest(".product-image");
+  const image = card?.querySelector("[data-hover-src]");
+  if (image) {
+    image.src = image.dataset.hoverSrc;
+    image.removeAttribute("data-hover-src");
+  }
+}
+grid.addEventListener("pointerover", loadHoverImage);
+grid.addEventListener("focusin", loadHoverImage);
+renderMainMenu();
 renderProducts();
 updateCart();
 loadStoreData();
