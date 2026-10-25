@@ -396,10 +396,8 @@ function applyStoreContent(content) {
       return;
     }
     if (item.key === "hero_title" && item.value.includes(",")) {
-      const [title, ...subtitleParts] = item.value.split(",");
+      const [title] = item.value.split(",");
       document.querySelector('[data-content="hero_title"]').textContent = title.trim();
-      document.querySelector('[data-content="hero_subtitle"]').textContent =
-        subtitleParts.join(" ").trim().replace(/[.,]$/, "");
       return;
     }
     const element = document.querySelector(`[data-content="${item.key}"]`);
