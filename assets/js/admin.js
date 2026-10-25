@@ -787,23 +787,54 @@ async function initAdmin() {
   showLogin();
 }
 
+async function loadDashboardData() {
+  const panels = [...document.querySelectorAll("[data-panel]")];
+  panels.forEach(panel => { panel.inert = true; });
+  const status = $("[data-dashboard-loading]");
+  status.textContent = "Cargando las secciones del panel...";
+  status.classList.remove("error");
+  const unlock = async (promise, names) => {
+    await promise;
+    panels.filter(panel => names.includes(panel.dataset.panel)).forEach(panel => { panel.inert = false; });
+  };
+  const ordersReady = loadOrders();
+  const categoriesReady = loadCategories();
+  const productsReady = loadProducts();
+  const contentReady = loadContent();
+  const results = await Promise.allSettled([
+    unlock(ordersReady, ["orders"]),
+    unlock(categoriesReady, ["categories"]),
+    unlock(Promise.all([productsReady, categoriesReady]), ["products"]),
+    unlock(contentReady, ["content"]),
+    unlock(Promise.all([productsReady, categoriesReady, contentReady]), ["promotions"])
+  ]);
+  const failed = results.some(result => result.status === "rejected");
+  status.textContent = failed ? "No se pudieron cargar algunas secciones. Recargá el panel para reintentar." : "";
+  status.classList.toggle("error", failed);
+}
+
 $("[data-login-form]").addEventListener("submit", async event => {
   event.preventDefault();
+  const loginForm = event.currentTarget;
+  const button = loginForm.querySelector('[type="submit"]');
+  button.disabled = true;
   message("[data-login-message]", "Ingresando...");
-  const form = new FormData(event.currentTarget);
+  const form = new FormData(loginForm);
+  try {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: form.get("email"),
     password: form.get("password")
   });
   if (error) return message("[data-login-message]", "Correo o contraseña incorrectos.", true);
-  try {
     await verifyAdmin(data.user);
-    await Promise.all([loadOrders(), loadCategories(), loadProducts(), loadContent()]);
     showDashboard(data.user.email);
-    event.target.reset();
+    loginForm.reset();
+    await loadDashboardData();
   } catch (adminError) {
     showLogin();
     message("[data-login-message]", adminError.message, true);
+  } finally {
+    button.disabled = false;
   }
 });
 
