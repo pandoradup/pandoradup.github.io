@@ -279,7 +279,8 @@ footer a, footer div > span { color: #bdb8ae; font-size: 11px; }
   .mobile-menu { position: absolute; left: 4vw; bottom: 25px; display: block; width: 32px; }
   .mobile-menu span { display: block; margin: 6px 0; width: 20px; height: 1px; background: var(--ink); }
   .nav { position: absolute; top: 84px; bottom: auto; left: 0; right: 0; padding: 28px 5vw; flex-direction: column; align-items: flex-start; background: var(--paper); border-bottom: 1px solid var(--line); transform: translateY(-140%); transition: .3s; }
-  .nav.open { transform: translateY(0); }
+  .nav { visibility: hidden; opacity: 0; pointer-events: none; }
+  .nav.open { transform: translateY(0); visibility: visible; opacity: 1; pointer-events: auto; }
   .nav-product-menu { width: 100%; }
   .nav-product-dropdown { width: 100%; padding: 8px 0 0 14px; position: static; display: none; border: 0; opacity: 1; visibility: visible; transform: none; }
   .nav-product-menu.open .nav-product-dropdown { display: grid; }
