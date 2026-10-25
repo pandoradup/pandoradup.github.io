@@ -261,12 +261,14 @@ function renderProducts() {
   ).sort((a, b) => isCatalogView ? Number(productAvailableStock(a) === 0) - Number(productAvailableStock(b) === 0) : 0);
   grid.innerHTML = visible.map(product => {
     const availableStock = productAvailableStock(product);
-    const secondaryImage = (product.gallery_urls || []).find(url => url && url !== product.image);
+    const photos = [...new Set([product.image, ...(product.gallery_urls || [])].filter(Boolean))];
     return `
     <article class="product-card">
-      <div class="product-image${secondaryImage ? " has-secondary-image" : ""}" data-product-open="${product.id}">
-        <img class="product-image-primary" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async">
-        ${secondaryImage ? `<img class="product-image-secondary" data-hover-src="${escapeHtml(secondaryImage)}" alt="" loading="lazy" decoding="async">` : ""}
+      <div class="product-image" data-product-open="${product.id}">
+        <div class="product-photo-track" data-card-photos aria-label="Fotos de ${escapeHtml(product.name)}">
+          ${photos.map((photo, index) => `<img src="${escapeHtml(photo)}" alt="${escapeHtml(product.name)} · Foto ${index + 1} de ${photos.length}" loading="lazy" decoding="async" draggable="false">`).join("")}
+        </div>
+        ${photos.length > 1 ? `<button type="button" class="card-photo-arrow card-photo-prev" data-card-photo="-1" aria-label="Foto anterior">‹</button><button type="button" class="card-photo-arrow card-photo-next" data-card-photo="1" aria-label="Foto siguiente">›</button><span class="card-photo-count" data-card-photo-count>1 / ${photos.length}</span>` : ""}
         ${availableStock === 0
           ? `<span class="product-badge out-of-stock">SIN STOCK</span>`
           : availableStock <= 2
@@ -687,6 +689,14 @@ function openProductFromCart(productId) {
 }
 
 document.addEventListener("click", async event => {
+  const photoArrow = event.target.closest("[data-card-photo]");
+  if (photoArrow) {
+    const track = photoArrow.closest(".product-image").querySelector("[data-card-photos]");
+    track.scrollBy({ left: Number(photoArrow.dataset.cardPhoto) * track.clientWidth, behavior: "smooth" });
+    return;
+  }
+  const photoTrack = event.target.closest("[data-card-photos]");
+  if (photoTrack && Date.now() < Number(photoTrack.dataset.suppressClickUntil || 0)) return;
   const add = event.target.closest("[data-add]");
   if (add) {
     event.stopPropagation();
@@ -822,17 +832,25 @@ window.addEventListener("focus", async () => {
   await refreshProductAvailability();
 });
 
-// Secondary product photos are only needed when someone interacts with the card.
-function loadHoverImage(event) {
-  const card = event.target.closest(".product-image");
-  const image = card?.querySelector("[data-hover-src]");
-  if (image) {
-    image.src = image.dataset.hoverSrc;
-    image.removeAttribute("data-hover-src");
+grid.addEventListener("scroll", event => {
+  const track = event.target;
+  if (!track.matches("[data-card-photos]")) return;
+  track.dataset.suppressClickUntil = String(Date.now() + 350);
+  const count = track.parentElement.querySelector("[data-card-photo-count]");
+  if (count && track.clientWidth) count.textContent = `${Math.round(track.scrollLeft / track.clientWidth) + 1} / ${track.children.length}`;
+}, true);
+let photoGesture;
+grid.addEventListener("pointerdown", event => {
+  const track = event.target.closest("[data-card-photos]");
+  photoGesture = track ? { track, x: event.clientX, y: event.clientY } : null;
+});
+grid.addEventListener("pointermove", event => {
+  if (photoGesture && Math.hypot(event.clientX - photoGesture.x, event.clientY - photoGesture.y) > 10) {
+    photoGesture.track.dataset.suppressClickUntil = String(Date.now() + 500);
   }
-}
-grid.addEventListener("pointerover", loadHoverImage);
-grid.addEventListener("focusin", loadHoverImage);
+});
+grid.addEventListener("pointerup", () => { photoGesture = null; });
+grid.addEventListener("pointercancel", () => { photoGesture = null; });
 renderMainMenu();
 renderProducts();
 updateCart();
