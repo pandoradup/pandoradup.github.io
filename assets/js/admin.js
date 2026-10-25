@@ -51,7 +51,7 @@ function showDashboard(email) {
 function renderProducts() {
   const list = $("[data-product-list]");
   const sortedProducts = [...products].sort((a, b) =>
-    Number(getAdminAvailableStock(a) === 0) - Number(getAdminAvailableStock(b) === 0)
+    String(a.name || "").localeCompare(String(b.name || ""), "es-AR", { sensitivity: "base", numeric: true })
   );
   list.innerHTML = sortedProducts.map(product => {
     const stock = getAdminAvailableStock(product);
