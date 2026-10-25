@@ -1,124 +1,57 @@
-import { createSupabaseClient } from "./supabase-client.js";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
 
-const $ = selector => document.querySelector(selector);
-let supabase;
+const form = document.querySelector("[data-tracking-form]");
+const message = document.querySelector("[data-tracking-message]");
+const result = document.querySelector("[data-tracking-result]");
+const states = {
+  pending: ["Pedido recibido", "Recibimos tu pedido. Nos comunicaremos con vos para coordinar el pago y la entrega."],
+  contacted: ["Contactado", "Ya nos pusimos en contacto con vos para coordinar tu pedido."],
+  completed: ["Completado", "Tu pedido fue marcado como completado."],
+  cancelled: ["Cancelado", "Tu pedido fue cancelado. Si tenés alguna duda, escribinos por WhatsApp."],
+};
 
-function setMessage(selector, text, error = false) {
-  const element = $(selector);
-  element.textContent = text;
-  element.classList.toggle("error", error);
-}
-
-async function isAdministrator(userId) {
-  const { data, error } = await supabase
-    .from("admins")
-    .select("user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  return !error && Boolean(data);
-}
-
-async function showProfile(user) {
-  $("[data-auth-view]").classList.add("hidden");
-  $("[data-profile-view]").classList.remove("hidden");
-  $("[data-profile-email]").textContent = user.email;
-  const admin = await isAdministrator(user.id);
-  $("[data-admin-link]").classList.toggle("hidden", !admin);
-}
-
-function showAuth() {
-  $("[data-profile-view]").classList.add("hidden");
-  $("[data-auth-view]").classList.remove("hidden");
-}
-
-async function initializeAccount() {
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  const number = form.elements.orderNumber.value.trim().toUpperCase();
+  form.elements.orderNumber.value = number;
+  result.classList.add("hidden");
+  message.classList.remove("error");
+  if (!/^[A-F0-9]{8}$/.test(number)) {
+    message.textContent = "Ingresá los 8 caracteres del número de pedido.";
+    message.classList.add("error");
+    return;
+  }
+  const button = form.querySelector("button");
+  button.disabled = true;
+  form.setAttribute("aria-busy", "true");
+  message.textContent = "Consultando tu pedido…";
   try {
-    supabase = await createSupabaseClient();
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (session?.user) await showProfile(session.user);
-    else showAuth();
-
-    supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (nextSession?.user) showProfile(nextSession.user);
-      else showAuth();
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/order-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_PUBLISHABLE_KEY },
+      body: JSON.stringify({ orderNumber: number }),
+      signal: AbortSignal.timeout(15000),
+      cache: "no-store",
     });
+    const data = await response.json();
+    if (!response.ok) {
+      if (response.status === 404) throw new Error("No encontramos ese pedido. Revisá el número de tu comprobante.");
+      throw new Error("No pudimos consultar tu pedido. Intentá nuevamente en unos minutos.");
+    }
+    const state = states[data.status];
+    if (!state || data.orderNumber !== number) throw new Error("No pudimos consultar tu pedido. Intentá nuevamente.");
+    document.querySelector("[data-tracking-number]").textContent = `PEDIDO ${number}`;
+    document.querySelector("[data-tracking-status]").textContent = state[0];
+    document.querySelector("[data-tracking-description]").textContent = state[1];
+    result.classList.remove("hidden");
+    message.textContent = "";
   } catch (error) {
-    showAuth();
-    setMessage(
-      "[data-login-message]",
-      "No podemos conectar con tu cuenta en este momento. Tu usuario no se perdió; intentá nuevamente en unos minutos.",
-      true
-    );
-    console.warn("No se pudo iniciar el servicio de cuentas.", error);
-  }
-}
-
-document.querySelectorAll("[data-auth-tab]").forEach(button => {
-  button.addEventListener("click", () => {
-    const login = button.dataset.authTab === "login";
-    document.querySelectorAll("[data-auth-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
-    $("[data-login-form]").classList.toggle("hidden", !login);
-    $("[data-register-form]").classList.toggle("hidden", login);
-  });
-});
-
-$("[data-login-form]").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (!supabase) {
-    setMessage("[data-login-message]", "El servicio de cuentas no está disponible en este momento.", true);
-    return;
-  }
-  const form = new FormData(event.currentTarget);
-  setMessage("[data-login-message]", "Ingresando...");
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: form.get("email"),
-    password: form.get("password")
-  });
-  if (error) {
-    setMessage("[data-login-message]", "Correo o contraseña incorrectos.", true);
-    return;
-  }
-  const admin = await isAdministrator(data.user.id);
-  if (admin) {
-    window.location.href = "admin.html";
-    return;
-  }
-  await showProfile(data.user);
-});
-
-$("[data-register-form]").addEventListener("submit", async event => {
-  event.preventDefault();
-  if (!supabase) {
-    setMessage("[data-register-message]", "El servicio de cuentas no está disponible en este momento.", true);
-    return;
-  }
-  const form = new FormData(event.currentTarget);
-  if (form.get("password") !== form.get("password_confirmation")) {
-    setMessage("[data-register-message]", "Las contraseñas no coinciden.", true);
-    return;
-  }
-  setMessage("[data-register-message]", "Creando cuenta...");
-  const { data, error } = await supabase.auth.signUp({
-    email: form.get("email"),
-    password: form.get("password"),
-    options: { emailRedirectTo: new URL("account.html", window.location.href).href }
-  });
-  if (error) {
-    setMessage("[data-register-message]", error.message, true);
-    return;
-  }
-  if (data.session) {
-    await showProfile(data.user);
-  } else {
-    setMessage("[data-register-message]", "Revisá tu correo para confirmar la cuenta.");
+    message.textContent = error.name === "TimeoutError" || error instanceof TypeError
+      ? "No pudimos conectar. Revisá tu conexión e intentá nuevamente."
+      : error.message;
+    message.classList.add("error");
+  } finally {
+    button.disabled = false;
+    form.setAttribute("aria-busy", "false");
   }
 });
-
-$("[data-logout]").addEventListener("click", async () => {
-  if (!supabase) return;
-  await supabase.auth.signOut();
-  showAuth();
-});
-
-initializeAccount();

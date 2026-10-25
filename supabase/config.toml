@@ -1,2 +1,6 @@
 [functions.order-notification]
 verify_jwt = true
+
+# Customers track orders without signing in. The response contains status only.
+[functions.order-status]
+verify_jwt = false

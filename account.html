@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>Mi cuenta — pandora.dup</title>
+  <title>Estado de mi pedido — pandora.dup</title>
   <link rel="icon" type="image/png" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="apple-touch-icon" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/account.css?v=20260707-1">
+  <link rel="stylesheet" href="assets/css/account.css?v=20261025-1">
 </head>
 <body>
   <header class="account-header">
@@ -20,40 +20,25 @@
   </header>
 
   <main class="account-main">
-    <section class="auth-card" data-auth-view>
-      <p class="eyebrow">MI CUENTA</p>
-      <h1>Bienvenida</h1>
-      <div class="auth-tabs">
-        <button class="active" type="button" data-auth-tab="login">Iniciar sesión</button>
-        <button type="button" data-auth-tab="register">Registrarme</button>
+    <section class="auth-card" aria-labelledby="tracking-title">
+      <p class="eyebrow">MIS PEDIDOS</p>
+      <h1 id="tracking-title">Estado de mi pedido</h1>
+      <p class="tracking-help" id="tracking-help">Ingresá el número que aparece en tu comprobante. No necesitás una cuenta.</p>
+      <form data-tracking-form>
+        <label for="order-number">Número de pedido</label>
+        <input id="order-number" name="orderNumber" type="text" required maxlength="8" pattern="[A-Fa-f0-9]{8}" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="tracking-help" placeholder="Ej.: A1B2C3D4">
+        <button class="submit-button" type="submit">CONSULTAR PEDIDO</button>
+        <p class="form-message" data-tracking-message role="status" aria-live="polite"></p>
+      </form>
+      <div class="tracking-result hidden" data-tracking-result role="status" aria-live="polite">
+        <p class="eyebrow" data-tracking-number></p>
+        <h2 data-tracking-status></h2>
+        <p data-tracking-description></p>
       </div>
-      <form data-login-form>
-        <label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label>
-        <label>Contraseña<input name="password" type="password" autocomplete="current-password" minlength="8" required></label>
-        <button class="submit-button" type="submit">INICIAR SESIÓN</button>
-        <p class="form-message" data-login-message></p>
-      </form>
-
-      <form class="hidden" data-register-form>
-        <label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label>
-        <label>Contraseña<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>Repetir contraseña<input name="password_confirmation" type="password" autocomplete="new-password" minlength="8" required></label>
-        <button class="submit-button" type="submit">CREAR MI CUENTA</button>
-        <p class="form-message" data-register-message></p>
-      </form>
-    </section>
-
-    <section class="profile-card hidden" data-profile-view>
-      <div class="profile-icon" aria-hidden="true">✓</div>
-      <p class="eyebrow">MI CUENTA</p>
-      <h1>Sesión iniciada</h1>
-      <p class="profile-email" data-profile-email></p>
-      <a class="admin-link hidden" href="admin.html" data-admin-link>ABRIR PANEL DE ADMINISTRACIÓN →</a>
-      <a class="store-link" href="index.html">VOLVER A LA TIENDA</a>
-      <button type="button" data-logout>CERRAR SESIÓN</button>
+      <a class="tracking-admin-link" href="admin.html">Acceso de administración →</a>
     </section>
   </main>
 
-  <script type="module" src="assets/js/account.js?v=20260718-1"></script>
+  <script type="module" src="assets/js/account.js?v=20261025-1"></script>
 </body>
 </html>

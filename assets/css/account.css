@@ -32,3 +32,14 @@ input:focus { border-color: var(--ink); }
   .account-header > a:last-child { display: none; }
   .auth-card, .profile-card { padding: 28px 22px; }
 }
+
+.tracking-help { color: var(--muted); font-size: 13px; line-height: 1.7; }
+[data-tracking-form] { margin-top: 26px; }
+[data-tracking-form] label { margin-bottom: 8px; }
+[data-tracking-form] input { text-transform: uppercase; letter-spacing: 2px; }
+[data-tracking-form] .submit-button { margin-top: 18px; }
+.submit-button:disabled { opacity: .6; cursor: wait; }
+.tracking-result { padding: 24px 0; border-top: 1px solid var(--line); }
+.tracking-result h2 { margin: 10px 0; font-size: 24px; font-weight: 500; }
+.tracking-result > p:last-child { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.tracking-admin-link { display: block; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; text-align: center; }
