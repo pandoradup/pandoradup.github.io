@@ -5,6 +5,7 @@ let searchTerm = "";
 let cart = [];
 let detailProduct = null;
 let storeClient = null;
+let storeLoading = true;
 let promotions = [];
 let storeCategories = [];
 const catalogParams = new URLSearchParams(window.location.search);
@@ -289,7 +290,11 @@ function renderProducts() {
     </article>`;
   }).join("");
   grid.scrollLeft = 0;
-  document.querySelector("[data-empty]").classList.toggle("visible", visible.length === 0);
+  const emptyState = document.querySelector("[data-empty]");
+  emptyState.textContent = storeLoading && !products.length
+    ? "Cargando productos..."
+    : "No encontramos productos con esa búsqueda.";
+  emptyState.classList.toggle("visible", visible.length === 0);
 }
 
 function showProductImage(url, selectedButton) {
@@ -418,7 +423,7 @@ function applyStoreContent(content) {
 async function loadStoreData() {
   try {
     const { createSupabaseClient, isSupabaseConfigured } = await import("./supabase-client.js");
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) throw new Error("La tienda no está disponible en este momento.");
     const client = await createSupabaseClient();
     storeClient = client;
     // Paint the homepage as soon as its content arrives, independently of stock.
@@ -442,6 +447,7 @@ async function loadStoreData() {
       { data: content, error: contentError },
       { data: categories, error: categoriesError }
     ] = await Promise.race([storeRequest, storeTimeout]).finally(() => clearTimeout(timeoutId));
+    storeLoading = false;
     if (productsError && contentError && categoriesError) {
       throw new Error("El servicio de la tienda no está disponible.");
     }
@@ -495,6 +501,7 @@ async function loadStoreData() {
     }
     updateCart();
   } catch (error) {
+    storeLoading = false;
     console.warn("No se pudo cargar el catálogo administrable.", error);
     const emptyState = document.querySelector("[data-empty]");
     emptyState.textContent = "No pudimos conectar con la tienda. Tus productos siguen guardados; volvé a intentar en unos minutos.";
