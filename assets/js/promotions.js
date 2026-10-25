@@ -2,7 +2,16 @@
   function parse(value) {
     try {
       const parsed = JSON.parse(value || "[]");
-      return Array.isArray(parsed) ? parsed : [];
+      return Array.isArray(parsed) ? parsed.filter(promotion =>
+        promotion && typeof promotion === "object" && promotion.id != null &&
+        typeof promotion.name === "string" && Array.isArray(promotion.requirements) &&
+        promotion.requirements.length > 0 && promotion.requirements.every(requirement =>
+          requirement && ["product", "category", "product_type"].includes(requirement.matcher) &&
+          ["string", "number"].includes(typeof requirement.value) &&
+          Number.isInteger(Number(requirement.quantity)) && Number(requirement.quantity) > 0
+        ) && (promotion.type === "gift" ? typeof promotion.gift === "string" :
+          Number.isFinite(Number(promotion.price)) && Number(promotion.price) >= 0)
+      ) : [];
     } catch {
       return [];
     }

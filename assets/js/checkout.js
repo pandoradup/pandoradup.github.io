@@ -10,7 +10,11 @@ const STORE_PICKUP = "Retiro en el local [Castelli 695, 8000 Bahía Blanca, Prov
 
 let cart = [];
 try {
-  cart = JSON.parse(localStorage.getItem("pandoraCart")) || [];
+  const savedCart = JSON.parse(localStorage.getItem("pandoraCart"));
+  cart = Array.isArray(savedCart) ? savedCart.filter(item =>
+    item && typeof item === "object" && item.id != null &&
+    typeof item.name === "string" && Number.isFinite(Number(item.price)) && Number(item.price) >= 0
+  ) : [];
 } catch {
   cart = [];
 }
@@ -34,8 +38,8 @@ let total = subtotal;
 function renderSummary() {
   document.querySelector("[data-summary-items]").innerHTML = groupedItems.map(item => `
     <article class="summary-item">
-      <img src="${item.image || item.image_url}" alt="">
-      <div><h3>${item.name}</h3><p>${item.size ? `Talle: ${escapeHtml(item.size)} · ` : ""}Cantidad: ${item.quantity}</p></div>
+      <img src="${escapeHtml(item.image || item.image_url)}" alt="">
+      <div><h3>${escapeHtml(item.name)}</h3><p>${item.size ? `Talle: ${escapeHtml(item.size)} · ` : ""}Cantidad: ${item.quantity}</p></div>
       <strong>${money(item.price * item.quantity)}</strong>
     </article>
   `).join("");
@@ -104,7 +108,7 @@ ${notesLine}`;
 
 async function saveOrder(form, orderNumber) {
   const { createSupabaseClient, isSupabaseConfigured } = await import("./supabase-client.js");
-  if (!isSupabaseConfigured) return;
+  if (!isSupabaseConfigured) throw new Error("La tienda no está disponible para registrar pedidos. Intentá nuevamente más tarde.");
   const client = await createSupabaseClient();
   const [{ data: currentProducts, error: productsError }, { data: promotionSetting, error: promotionError }] =
     await Promise.all([
@@ -275,8 +279,11 @@ function generateOrderNumber() {
   return `PAN${String(random[0] % 10000).padStart(4, "0")}AR`;
 }
 
+let submittingOrder = false;
 document.querySelector("[data-order-form]").addEventListener("submit", async event => {
   event.preventDefault();
+  if (submittingOrder) return;
+  submittingOrder = true;
   const form = new FormData(event.currentTarget);
   updatePayment(form.get("payment"));
   let orderNumber = generateOrderNumber();
@@ -296,6 +303,7 @@ document.querySelector("[data-order-form]").addEventListener("submit", async eve
     }
   } catch (error) {
     console.error("No se pudo registrar el pedido:", error);
+    submittingOrder = false;
     submitButton.disabled = false;
     const unavailableMatch = String(error.message).match(/Producto no disponible:\s*(.+)/i);
     document.querySelector("[data-order-message]").textContent = unavailableMatch

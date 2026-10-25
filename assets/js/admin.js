@@ -64,10 +64,10 @@ function renderProducts() {
         : { className: "", label: "Publicado" };
     return `
     <article class="admin-product">
-      <img src="${product.image_url}" alt="">
+      <img src="${escapeHtml(product.image_url)}" alt="" loading="lazy" decoding="async">
       <div>
-        <h3>${product.name}</h3>
-        <p>${product.category} · ${money(product.price)} · Stock: ${stock}${product.product_type === "composite" ? " calculado" : ""}</p>
+        <h3>${escapeHtml(product.name)}</h3>
+        <p>${escapeHtml(product.category)} · ${money(product.price)} · Stock: ${stock}${product.product_type === "composite" ? " calculado" : ""}</p>
       </div>
       <span class="status ${status.className}">${status.label}</span>
       <button type="button" data-edit-product="${product.id}">EDITAR</button>
@@ -308,7 +308,8 @@ async function loadContent() {
     }
     if (item.key === "promotions_config") {
       try {
-        promotions = JSON.parse(item.value) || [];
+        const savedPromotions = JSON.parse(item.value);
+        promotions = Array.isArray(savedPromotions) ? savedPromotions : [];
       } catch {
         promotions = [];
       }
@@ -393,13 +394,14 @@ function updatePromotionTypeFields() {
   form.elements.gift.required = isGift;
 }
 
-async function persistPromotions(messageText) {
+async function persistPromotions(messageText, nextPromotions = promotions) {
   const { error } = await supabase.from("site_content").upsert({
     key: "promotions_config",
-    value: JSON.stringify(promotions),
+    value: JSON.stringify(nextPromotions),
     updated_at: new Date().toISOString()
   });
   if (error) throw error;
+  promotions = nextPromotions;
   localStorage.setItem("pandoraPromotionsUpdatedAt", String(Date.now()));
   renderPromotions();
   message("[data-promotion-message]", messageText);
@@ -525,7 +527,6 @@ function openNewProduct() {
   }
 }
 
-window.openNewProductModal = openNewProduct;
 
 $("[data-main-image-preview]").addEventListener("click", event => {
   if (!event.target.closest("[data-remove-main-image]")) return;
@@ -785,6 +786,7 @@ async function initAdmin() {
   }
   supabase = await createSupabaseClient();
   showLogin();
+  $("[data-login-form] button").disabled = false;
 }
 
 async function loadDashboardData() {
@@ -821,11 +823,11 @@ $("[data-login-form]").addEventListener("submit", async event => {
   message("[data-login-message]", "Ingresando...");
   const form = new FormData(loginForm);
   try {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: form.get("email"),
-    password: form.get("password")
-  });
-  if (error) return message("[data-login-message]", "Correo o contraseña incorrectos.", true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.get("email"),
+      password: form.get("password")
+    });
+    if (error) return message("[data-login-message]", "Correo o contraseña incorrectos.", true);
     await verifyAdmin(data.user);
     showDashboard(data.user.email);
     loginForm.reset();
@@ -1129,8 +1131,8 @@ $("[data-promotion-form]").addEventListener("submit", async event => {
     gift: type === "gift" ? form.elements.gift.value.trim() : null,
     image_url: form.elements.promotion_image_url.value || null,
     priority: Number(form.elements.priority.value || 0),
-    startsAt: null,
-    endsAt: null,
+    startsAt: editedPromotion?.startsAt || null,
+    endsAt: editedPromotion?.endsAt || null,
     active: form.elements.active.checked,
     exclusive: form.elements.exclusive.checked,
     requirements
@@ -1139,9 +1141,10 @@ $("[data-promotion-form]").addEventListener("submit", async event => {
     const imageFile = editedImages.get(form.elements.promotion_image) || form.elements.promotion_image.files[0];
     if (imageFile) promotion.image_url = await uploadImage(imageFile, "site");
     const index = promotions.findIndex(item => item.id === promotion.id);
-    if (index >= 0) promotions[index] = promotion;
-    else promotions.push(promotion);
-    await persistPromotions(index >= 0 ? "Promoción actualizada." : "Promoción creada.");
+    const nextPromotions = index >= 0
+      ? promotions.map(item => item.id === promotion.id ? promotion : item)
+      : [...promotions, promotion];
+    await persistPromotions(index >= 0 ? "Promoción actualizada." : "Promoción creada.", nextPromotions);
     resetPromotionForm();
   } catch (error) {
     message("[data-promotion-message]", error.message, true);
@@ -1177,9 +1180,9 @@ $("[data-promotion-list]").addEventListener("click", async event => {
   if (!deleteButton) return;
   const promotion = promotions.find(item => item.id === deleteButton.dataset.deletePromotion);
   if (!promotion || !confirm(`¿Querés eliminar la promoción “${promotion.name}”?`)) return;
-  promotions = promotions.filter(item => item.id !== promotion.id);
+  const nextPromotions = promotions.filter(item => item.id !== promotion.id);
   try {
-    await persistPromotions("Promoción eliminada.");
+    await persistPromotions("Promoción eliminada.", nextPromotions);
     resetPromotionForm();
   } catch (error) {
     message("[data-promotion-message]", error.message, true);

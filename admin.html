@@ -15,23 +15,12 @@
   <link rel="icon" type="image/png" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="apple-touch-icon" href="assets/images/branding/pandora-symbol.png?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://hsahgureabomaahbikng.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="modulepreload" href="assets/js/supabase-client.js">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css?v=20260718-4">
-  <script>
-    window.openNewProductModal = function () {
-      const modal = document.querySelector("[data-product-modal]");
-      const form = document.querySelector("[data-product-form]");
-      if (form) {
-        form.reset();
-        form.elements.id.value = "";
-        document.querySelector("[data-product-form-title]").textContent = "Nuevo producto";
-        document.querySelector("[data-delete-product]").classList.add("hidden");
-        document.querySelector("[data-product-message]").textContent = "";
-      }
-      if (modal) modal.classList.remove("hidden");
-    };
-  </script>
 </head>
 <body>
   <main class="admin-shell">
@@ -48,7 +37,7 @@
         <input id="admin-email" name="email" type="email" autocomplete="email" required>
         <label for="admin-password">Contraseña</label>
         <input id="admin-password" name="password" type="password" autocomplete="current-password" minlength="8" required>
-        <button type="submit">ENTRAR</button>
+        <button type="submit" disabled>ENTRAR</button>
         <p class="form-message" data-login-message></p>
       </form>
     </section>
@@ -91,7 +80,7 @@
       <div class="tab-panel hidden" data-panel="products">
         <div class="panel-heading">
           <div><p class="eyebrow">CATÁLOGO</p><h2>Productos</h2></div>
-          <button class="primary-action" type="button" data-new-product onclick="window.openNewProductModal?.()">+ NUEVO PRODUCTO</button>
+          <button class="primary-action" type="button" data-new-product>+ NUEVO PRODUCTO</button>
         </div>
         <div class="metrics">
           <article><span>Publicados</span><strong data-metric-published>0</strong></article>
@@ -339,6 +328,6 @@
     </section>
   </div>
 
-  <script type="module" src="assets/js/admin.js?v=20261025-6"></script>
+  <script type="module" src="assets/js/admin.js?v=20261025-7"></script>
 </body>
 </html>

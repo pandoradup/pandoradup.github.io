@@ -23,7 +23,15 @@ export async function loadSupabaseModule() {
   throw lastError;
 }
 
-export async function createSupabaseClient() {
-  const { createClient } = await loadSupabaseModule();
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let clientPromise;
+export function createSupabaseClient() {
+  if (!clientPromise) {
+    clientPromise = loadSupabaseModule()
+      .then(({ createClient }) => createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY))
+      .catch(error => {
+        clientPromise = undefined;
+        throw error;
+      });
+  }
+  return clientPromise;
 }

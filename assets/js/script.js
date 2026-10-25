@@ -44,7 +44,11 @@ if (requestedCategory || requestedSearch) {
   document.querySelector("[data-search-input]").value = searchTerm;
 }
 try {
-  cart = JSON.parse(localStorage.getItem("pandoraCart")) || [];
+  const savedCart = JSON.parse(localStorage.getItem("pandoraCart"));
+  cart = Array.isArray(savedCart) ? savedCart.filter(item =>
+    item && typeof item === "object" && item.id != null &&
+    typeof item.name === "string" && Number.isFinite(Number(item.price)) && Number(item.price) >= 0
+  ) : [];
 } catch {
   cart = [];
 }
@@ -279,7 +283,7 @@ function renderProducts() {
         </button>
       </div>
       <div class="product-info" data-product-open="${product.id}">
-        <h3>${product.name}</h3>
+        <h3>${escapeHtml(product.name)}</h3>
         <div class="product-price">${product.old ? `<del>${money(product.old)}</del>` : ""}<span>${money(product.price)}</span></div>
       </div>
     </article>`;
@@ -441,7 +445,7 @@ async function loadStoreData() {
     if (productsError && contentError && categoriesError) {
       throw new Error("El servicio de la tienda no está disponible.");
     }
-    if (!productsError && remoteProducts?.length) {
+    if (!productsError && Array.isArray(remoteProducts)) {
       const sizesById = new Map((sizeRows || []).map(row => [String(row.id), row.size_stock]));
       products = remoteProducts.map(product => normalizeStoreProduct({
         ...product,
@@ -567,19 +571,19 @@ function updateCart() {
   }, {}));
   items.innerHTML = grouped.map(item => `
     <article class="cart-item" data-cart-product="${item.id}" role="button" tabindex="0"
-      aria-label="Ver detalle de ${item.name}">
-      <img src="${item.image || item.image_url}" alt="${item.name}">
+      aria-label="Ver detalle de ${escapeHtml(item.name)}">
+      <img src="${escapeHtml(item.image || item.image_url)}" alt="${escapeHtml(item.name)}">
       <div class="cart-item-info">
-        ${item.badge ? `<span class="cart-item-badge">${item.badge}</span>` : ""}
-        <h4>${item.name}</h4>
-        <p>${item.category || "Accesorios"}${item.size ? ` · Talle ${escapeHtml(item.size)}` : ""}</p>
-        <button class="remove-item" type="button" data-remove-product="${escapeHtml(item.cartKey)}" aria-label="Eliminar ${item.name}">
+        ${item.badge ? `<span class="cart-item-badge">${escapeHtml(item.badge)}</span>` : ""}
+        <h4>${escapeHtml(item.name)}</h4>
+        <p>${escapeHtml(item.category || "Accesorios")}${item.size ? ` · Talle ${escapeHtml(item.size)}` : ""}</p>
+        <button class="remove-item" type="button" data-remove-product="${escapeHtml(item.cartKey)}" aria-label="Eliminar ${escapeHtml(item.name)}">
           <span aria-hidden="true">⌫</span> Eliminar producto
         </button>
       </div>
       <div class="cart-item-actions">
         <strong>${money(item.price * item.quantity)}</strong>
-        <div class="quantity-control" aria-label="Cantidad de ${item.name}">
+        <div class="quantity-control" aria-label="Cantidad de ${escapeHtml(item.name)}">
           <button type="button" data-decrease="${escapeHtml(item.cartKey)}" aria-label="Restar uno">−</button>
           <span>${item.quantity} UN.</span>
           <button type="button" data-increase="${escapeHtml(item.cartKey)}" aria-label="Sumar uno">+</button>
