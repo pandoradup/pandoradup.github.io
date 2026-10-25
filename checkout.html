@@ -38,7 +38,6 @@
             <div class="field-grid">
               <label>Nombre<input name="name" autocomplete="given-name" required></label>
               <label>Apellido<input name="surname" autocomplete="family-name" required></label>
-              <label>Documento<input name="document" inputmode="numeric" pattern="[0-9]{7,11}" required></label>
               <label>Teléfono<input name="phone" type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9+() -]{8,20}" required></label>
             </div>
             <button class="continue-button" type="button" data-next-step="2" disabled>CONTINUAR A MÉTODO DE ENTREGA</button>
@@ -67,6 +66,7 @@
               </label>
             </fieldset>
             <div class="address-fields hidden" data-address-fields>
+              <label>Documento del destinatario<input name="document" inputmode="numeric" pattern="[0-9]{7,11}" disabled></label>
               <label>Dirección de entrega<input name="address" autocomplete="street-address"></label>
               <div class="field-grid">
                 <label>Ciudad<input name="city" autocomplete="address-level2"></label>
@@ -145,6 +145,6 @@
   </main>
 
   <script src="assets/js/promotions.js?v=20260627-1"></script>
-  <script src="assets/js/checkout.js?v=20261025-1"></script>
+  <script src="assets/js/checkout.js?v=20261025-2"></script>
 </body>
 </html>

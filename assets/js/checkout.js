@@ -87,8 +87,7 @@ Pedido: ${orderNumber}
 
 CLIENTE
 Nombre: ${form.get("name")} ${form.get("surname")}
-Documento: ${form.get("document")}
-Teléfono: ${form.get("phone")}
+${delivery !== STORE_PICKUP ? `Documento: ${form.get("document")}\n` : ""}Teléfono: ${form.get("phone")}
 Email: ${form.get("email")}
 
 PRODUCTOS
@@ -142,7 +141,7 @@ async function saveOrder(form, orderNumber) {
     customer_name: `${form.get("name")} ${form.get("surname")}`.trim(),
     email: form.get("email"),
     phone: form.get("phone"),
-    document: form.get("document"),
+    document: delivery !== STORE_PICKUP ? form.get("document") : "",
     delivery_method: delivery,
     address: delivery !== STORE_PICKUP ? form.get("address") : null,
     city: delivery !== STORE_PICKUP ? form.get("city") : null,
@@ -220,21 +219,26 @@ function updateStepButtons() {
 document.querySelector("[data-order-form]").addEventListener("input", updateStepButtons);
 document.querySelector("[data-order-form]").addEventListener("change", updateStepButtons);
 
-document.querySelectorAll('input[name="delivery"]').forEach(input => {
-  input.addEventListener("change", () => {
-    const needsAddress = input.value !== STORE_PICKUP;
-    const isAndreani = input.value === "Envío por correo Andreani";
+function syncDeliveryFields(delivery) {
+    const needsAddress = Boolean(delivery) && delivery !== STORE_PICKUP;
+    const isAndreani = delivery === "Envío por correo Andreani";
     document.querySelector("[data-address-fields]").classList.toggle("hidden", !needsAddress);
     document.querySelector("[data-andreani-tools]").classList.toggle("hidden", !isAndreani);
-    ["address", "city", "postal_code"].forEach(name => {
+    ["document", "address", "city", "postal_code"].forEach(name => {
       document.querySelector(`[name="${name}"]`).required = needsAddress;
     });
-    syncPaymentAvailability(input.value);
+    document.querySelector('[name="document"]').disabled = !needsAddress;
+    syncPaymentAvailability(delivery);
     updateStepButtons();
+}
+
+document.querySelectorAll('input[name="delivery"]').forEach(input => {
+  input.addEventListener("change", () => {
+    syncDeliveryFields(input.value);
   });
 });
 
-syncPaymentAvailability(document.querySelector('input[name="delivery"]:checked')?.value);
+syncDeliveryFields(document.querySelector('input[name="delivery"]:checked')?.value);
 updateStepButtons();
 setTimeout(updateStepButtons, 400);
 setTimeout(updateStepButtons, 1200);
