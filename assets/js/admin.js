@@ -162,6 +162,26 @@ function getAdminAvailableStock(product) {
   }));
 }
 
+function orderWhatsAppMessage(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  const products = items.map(item =>
+    `• ${item.name}${item.size ? ` · Talle ${item.size}` : ""} × ${Number(item.quantity) || 1}`
+  ).join("\n");
+  const address = order.address
+    ? `\nDirección: ${order.address}${order.city ? `, ${order.city}` : ""}${order.postal_code ? ` (CP ${order.postal_code})` : ""}`
+    : "";
+  return `¡Hola, ${order.customer_name}! 😊 Somos Pandora DUP.
+
+Recibimos tu pedido y vamos a preparar tu paquete con lo que elegiste:
+${products}
+
+Número de pedido: ${order.order_number}
+Total de tu compra: ${money(order.total)}
+Modalidad de entrega: ${order.delivery_method}${address}${order.address ? "\nEl costo del envío se coordina por separado." : ""}
+
+¡Gracias por tu compra! Coordinamos por acá los detalles del pago y la entrega. 💕`;
+}
+
 function renderOrders() {
   const activeOrders = orders.filter(order => ["pending", "contacted"].includes(order.status));
   const labels = { pending: "Sin contactar", contacted: "Contactado", completed: "Completado" };
@@ -187,7 +207,7 @@ function renderOrders() {
           ${items.map(item => `<li>${escapeHtml(item.name)}${item.size ? ` · Talle: ${escapeHtml(item.size)}` : ""} × ${Number(item.quantity) || 1}</li>`).join("")}
         </ul>
         <div class="order-actions">
-          <a href="https://wa.me/${phoneLink}" target="_blank" rel="noopener">CONTACTAR POR WHATSAPP ↗</a>
+          <a href="https://wa.me/${phoneLink}?text=${encodeURIComponent(orderWhatsAppMessage(order))}" target="_blank" rel="noopener">CONTACTAR POR WHATSAPP ↗</a>
           ${order.status === "pending"
             ? `<button class="primary-order-action" type="button" data-order-status="contacted" data-order-id="${order.id}">MARCAR CONTACTADO</button>`
             : ""}
