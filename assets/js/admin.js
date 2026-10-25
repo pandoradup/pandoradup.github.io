@@ -182,7 +182,7 @@ function renderOrders() {
           <div><span>Total</span><strong>${money(order.total)}</strong></div>
         </div>
         <ul class="order-products">
-          ${items.map(item => `<li>${escapeHtml(item.name)} × ${Number(item.quantity) || 1}</li>`).join("")}
+          ${items.map(item => `<li>${escapeHtml(item.name)}${item.size ? ` · Talle: ${escapeHtml(item.size)}` : ""} × ${Number(item.quantity) || 1}</li>`).join("")}
         </ul>
         <div class="order-actions">
           <a href="https://wa.me/${phoneLink}" target="_blank" rel="noopener">CONTACTAR POR WHATSAPP ↗</a>
