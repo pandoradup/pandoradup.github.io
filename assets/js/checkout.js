@@ -264,16 +264,32 @@ document.querySelectorAll("[data-edit-step]").forEach(button => {
   button.addEventListener("click", () => openStep(button.dataset.editStep));
 });
 
+function generateOrderNumber() {
+  // Rejection sampling keeps every eight-digit suffix equally likely.
+  const random = new Uint32Array(1);
+  do { crypto.getRandomValues(random); } while (random[0] >= 4200000000);
+  return `PAN${String(random[0] % 100000000).padStart(8, "0")}AR`;
+}
+
 document.querySelector("[data-order-form]").addEventListener("submit", async event => {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
   updatePayment(form.get("payment"));
-  const orderNumber = crypto.randomUUID().replaceAll("-", "").slice(0, 8).toUpperCase();
+  let orderNumber = generateOrderNumber();
   const submitButton = event.currentTarget.querySelector('[type="submit"]');
   submitButton.disabled = true;
   document.querySelector("[data-order-message]").textContent = "Registrando pedido...";
   try {
-    await saveOrder(form, orderNumber);
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        await saveOrder(form, orderNumber);
+        break;
+      } catch (error) {
+        // A uniqueness conflict means no order was saved; retry with a new number.
+        if (error.code !== "23505" || attempt >= 2) throw error;
+        orderNumber = generateOrderNumber();
+      }
+    }
   } catch (error) {
     console.error("No se pudo registrar el pedido:", error);
     submitButton.disabled = false;

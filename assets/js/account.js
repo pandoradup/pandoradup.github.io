@@ -16,8 +16,8 @@ form.addEventListener("submit", async event => {
   form.elements.orderNumber.value = number;
   result.classList.add("hidden");
   message.classList.remove("error");
-  if (!/^[A-F0-9]{8}$/.test(number)) {
-    message.textContent = "Ingresá los 8 caracteres del número de pedido.";
+  if (!/^(?:PAN[0-9]{8}AR|[A-F0-9]{8})$/.test(number)) {
+    message.textContent = "Ingresá el número completo de tu comprobante, por ejemplo PAN12345678AR.";
     message.classList.add("error");
     return;
   }
