@@ -383,3 +383,15 @@ footer a, footer div > span { color: #bdb8ae; font-size: 11px; }
 .floating-contact:hover { background: #105437; }
 .floating-contact:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .no-scroll .floating-contact { visibility: hidden; }
+
+@media (min-width: 1001px) {
+  .floating-contact {
+    right: max(6vw, env(safe-area-inset-right));
+    bottom: max(32px, env(safe-area-inset-bottom));
+    gap: 10px;
+    min-height: 54px;
+    padding: 0 20px;
+    font-size: 15px;
+  }
+  .floating-contact svg { width: 26px; height: 26px; }
+}
