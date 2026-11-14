@@ -21,15 +21,3 @@ create policy "Admin gestiona menu" on public.menu_items for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
-
-insert into public.menu_items (label, target_type, target_value, sort_order)
-select seed.*
-from (values
-  ('Promos','section','promos',1),
-  ('Novedades','section','productos',2),
-  ('Categorías','section','categorias',3),
-  ('Materiales','section','materiales',4),
-  ('Eventos','section','eventos',5),
-  ('Contacto','section','contacto',6)
-) as seed(label, target_type, target_value, sort_order)
-where not exists (select 1 from public.menu_items);

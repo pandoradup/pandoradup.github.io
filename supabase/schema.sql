@@ -538,10 +538,7 @@ revoke all on function public.decrease_stock_for_order() from public, anon, auth
 
 insert into public.site_content (key, value) values
   ('announcement', E'3 CUOTAS SIN INTERÉS\nENVÍOS A TODO EL PAÍS'),
-  ('hero_kicker', 'LO MÁS NUEVO · 2026'),
   ('hero_title', 'Armá tu pulsera'),
-  ('hero_subtitle', 'Combiná tus charms preferidos'),
-  ('hero_description', 'Accesorios creados para acompañarte todos los días y hacer especial cada momento.'),
   ('hero_button_text', 'VER COLECCIÓN'),
   ('hero_button_url', 'index.html?category=todos'),
   ('promotions_kicker', 'OPORTUNIDADES'),
@@ -554,21 +551,7 @@ insert into public.site_content (key, value) values
   ('materials_title', 'HECHO PARA VOS'),
   ('materials_description_1', 'Nuestros artículos están elaborados en aleación con terminación plateada, seleccionados para crear pulseras únicas y personalizadas.'),
   ('materials_description_2', 'Para conservar mejor su brillo y acabado, recomendamos evitar el contacto con agua o productos químicos.'),
-  ('events_kicker', 'IDEAL PARA REGALAR'),
-  ('events_description_2', 'Realizamos ventas minoristas y también preparamos pedidos para eventos especiales como cumpleaños de 15, celebraciones, souvenirs o detalles para invitados. Podés elegir pulseras, charms y combinaciones personalizadas para crear un regalo único.'),
-  ('events_button_text', 'CONSULTAR POR EVENTOS'),
-  ('events_button_url', 'https://wa.me/5492915072517?text=Hola%2C%20quiero%20consultar%20por%20accesorios%20para%20un%20evento'),
-  ('contact_kicker', 'CONTACTANOS'),
-  ('contact_title', '¿Tenés dudas? Te ayudamos por WhatsApp.'),
-  ('contact_description', 'Te acompañamos por WhatsApp para que armes una pulsera única.'),
-  ('contact_button_text', 'ESCRIBIR POR WHATSAPP'),
   ('contact_button_url', 'https://wa.me/5492915072517?text=Hola%2C%20quiero%20hacer%20una%20consulta%20sobre%20un%20art%C3%ADculo'),
-  ('story_title', '“Creemos que los pequeños detalles tienen el poder de cambiarlo todo.”'),
-  ('story_description', 'pandora.dup nació para crear accesorios que se sientan tan personales como los recuerdos que llevamos con ellos.'),
-  ('gift_title', 'Un detalle especial para cada ocasión'),
-  ('gift_description_1', 'Nuestros accesorios son una opción especial para regalar algo lindo, personal y con significado.'),
-  ('gift_description_2', 'Realizamos ventas minoristas y también preparamos pedidos para eventos especiales como cumpleaños de 15, celebraciones, souvenirs o detalles para invitados.'),
-  ('gift_description_3', 'Podés elegir pulseras, charms y combinaciones personalizadas para crear un regalo único.'),
   ('promotions_config', '[]'),
   ('hero_image', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1600&q=88'),
   ('editorial_main_image', 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1400&q=85'),
@@ -576,22 +559,11 @@ insert into public.site_content (key, value) values
 on conflict (key) do nothing;
 
 insert into public.categories (id, name, sort_order) values
-  ('dijes','Charms',1),('pulseras','Pulseras',2),('combos','Combos',3),
-  ('aros','Aros',4),('collares','Collares',5),('anillos','Anillos',6)
+  ('packaging','Packaging',0),
+  ('charms','Charms',1),
+  ('brazaletes','Brazaletes',2),
+  ('combos','Combos',3)
 on conflict (id) do nothing;
-
-insert into public.menu_items (label, target_type, target_value, sort_order)
-select seed.*
-from (values
-  ('Promos','section','promos',1),
-  ('Novedades','section','productos',2),
-  ('Categorías','section','categorias',3),
-  ('Materiales','section','materiales',4),
-  ('Eventos','section','eventos',5),
-  ('Contacto','section','contacto',6)
-) as seed(label, target_type, target_value, sort_order)
-where not exists (select 1 from public.menu_items);
-
 
 insert into storage.buckets (id, name, public)
 values ('products', 'products', true)
