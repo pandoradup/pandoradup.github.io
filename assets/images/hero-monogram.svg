@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="182" viewBox="0 0 224 182">
+  <defs>
+    <g id="monogram">
+      <circle cy="11" r="21" fill="none" stroke="currentColor" stroke-width="8"/>
+      <path fill="currentColor" d="m-7-21-2.8-10.8.7-.2 5 10zm5.5-1L-.3-34h.6l1.2 12zm5.6 0 5-10 .7.2L7-21z"/>
+      <circle cx="-4.6" cy="-18" r="1.6" fill="currentColor"/>
+      <circle cy="-18.5" r="1.6" fill="currentColor"/>
+      <circle cx="4.6" cy="-18" r="1.6" fill="currentColor"/>
+    </g>
+  </defs>
+  <use href="#monogram" color="#cba398" transform="translate(31 39) rotate(-24) scale(.86)"/>
+  <use href="#monogram" color="#dfbeb3" transform="translate(103 27) rotate(32) scale(.49)"/>
+  <use href="#monogram" color="#cba398" transform="translate(180 54) rotate(18) scale(1.03)"/>
+  <use href="#monogram" color="#dfbeb3" transform="translate(33 132) rotate(66) scale(.5)"/>
+  <use href="#monogram" color="#cba398" transform="translate(110 102) rotate(-48) scale(.63)"/>
+  <use href="#monogram" color="#dfbeb3" transform="translate(98 157) rotate(15) scale(.53)"/>
+  <use href="#monogram" color="#cba398" transform="translate(184 140) rotate(147) scale(.76)"/>
+</svg>
