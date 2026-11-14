@@ -593,22 +593,6 @@ from (values
 where not exists (select 1 from public.menu_items);
 
 
-insert into public.products (id,name,category,price,old_price,badge,image_url,stock,published,sort_order) values
-  (1,'Aros Aura','aros',28900,32000,'NUEVO','https://images.unsplash.com/photo-1635767798638-3e25273a8236?auto=format&fit=crop&w=700&q=85',10,true,1),
-  (2,'Collar Selene','collares',36500,null,'MÁS VENDIDO','https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=700&q=85',10,true,2),
-  (3,'Anillo Nudo','anillos',24400,null,null,'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=700&q=85',10,true,3),
-  (4,'Pulsera Siena','pulseras',31900,null,'NUEVO','https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=700&q=85',10,true,4),
-  (5,'Aros Lía','aros',22700,null,null,'https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?auto=format&fit=crop&w=700&q=85',10,true,5),
-  (6,'Collar Ambar','collares',39800,43000,'ÚLTIMOS','https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=700&q=85',10,true,6),
-  (7,'Anillo Cielo','anillos',26900,null,null,'https://images.unsplash.com/photo-1603561596112-db1d797cc1c5?auto=format&fit=crop&w=700&q=85',10,true,7),
-  (8,'Pulsera Roma','pulseras',29500,null,null,'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&w=700&q=85',10,true,8)
-on conflict (id) do nothing;
-select setval(
-  pg_get_serial_sequence('public.products','id'),
-  greatest((select coalesce(max(id), 1) from public.products), 1),
-  true
-);
-
 insert into storage.buckets (id, name, public)
 values ('products', 'products', true)
 on conflict (id) do update set public = true;
