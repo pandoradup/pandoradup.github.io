@@ -66,13 +66,16 @@
               </label>
             </fieldset>
             <div class="address-fields hidden" data-address-fields>
-              <label>Documento del destinatario<input name="document" inputmode="numeric" pattern="[0-9]{7,11}" disabled></label>
+              <label class="hidden" data-postal-field>Documento del destinatario<input name="document" inputmode="numeric" pattern="[0-9]{7,11}" disabled></label>
               <label>Dirección de entrega<input name="address" autocomplete="street-address"></label>
-              <div class="field-grid">
-                <label>Ciudad<input name="city" autocomplete="address-level2"></label>
-                <label>Código postal<input name="postal_code" autocomplete="postal-code"></label>
+              <div class="field-grid hidden" data-postal-field>
+                <label>Ciudad<input disabled name="city" autocomplete="address-level2"></label>
+                <label>Código postal<input disabled name="postal_code" autocomplete="postal-code"></label>
               </div>
             </div>
+            <label class="notes-field hidden" data-moto-notes>Observaciones de la dirección (opcional)
+              <textarea name="notes" rows="3" placeholder="Piso, departamento, timbre o referencia" disabled></textarea>
+            </label>
             <div class="andreani-tools hidden" data-andreani-tools>
               <p>Podés estimar el costo con el cotizador oficial de Andreani. Usá un paquete de <strong>15 × 15 × 5 cm</strong> y <strong>100 g</strong>. El origen es Bahía Blanca, CP: 8000. El importe es estimativo y se confirma al coordinar el pedido.</p>
               <a href="https://www.andreani.com/?tab=cotizar-envio" target="_blank" rel="noopener">CALCULAR ENVÍO EN ANDREANI ↗</a>
@@ -101,7 +104,7 @@
                 <span><strong>Mercado Pago</strong><small>Recibirás un enlace seguro para completar el pago.</small></span>
               </label>
             </fieldset>
-            <label class="notes-field">Comentarios sobre el pedido
+            <label class="notes-field" data-general-notes>Comentarios sobre el pedido
               <textarea name="notes" rows="3" placeholder="Indicaciones de entrega, horarios, etc."></textarea>
             </label>
             <button class="confirm-button" type="submit" disabled>CONFIRMAR COMPRA →</button>
@@ -145,6 +148,6 @@
   </main>
 
   <script src="assets/js/promotions.js?v=20261025-2"></script>
-  <script src="assets/js/checkout.js?v=20261025-4"></script>
+  <script src="assets/js/checkout.js?v=20261114-1"></script>
 </body>
 </html>

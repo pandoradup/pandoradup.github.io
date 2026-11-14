@@ -6,6 +6,7 @@ const money = value => new Intl.NumberFormat("es-AR", {
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
 })[character]);
+const MOTO_DELIVERY = "Envío por motomensajería";
 const STORE_PICKUP = "Retiro en el local [Castelli 695, 8000 Bahía Blanca, Provincia de Buenos Aires]";
 
 let cart = [];
@@ -75,8 +76,10 @@ function buildReceipt(form, orderNumber) {
     .map(item => `- ${item.name}${item.size ? ` · Talle ${item.size}` : ""} x${item.quantity}: ${money(item.price * item.quantity)}`)
     .join("\n");
   const delivery = form.get("delivery");
+  const city = form.get("city");
+  const postalCode = form.get("postal_code");
   const deliveryDetails = delivery !== STORE_PICKUP
-    ? `${delivery}: ${form.get("address")}, ${form.get("city")} (${form.get("postal_code")})`
+    ? `${delivery}: ${form.get("address")}${city ? `, ${city}` : ""}${postalCode ? ` (${postalCode})` : ""}`
     : delivery;
   const notesLine = form.get("notes")?.trim()
     ? `\nObservaciones: ${form.get("notes").trim()}`
@@ -91,7 +94,7 @@ Pedido: ${orderNumber}
 
 CLIENTE
 Nombre: ${form.get("name")} ${form.get("surname")}
-${delivery !== STORE_PICKUP ? `Documento: ${form.get("document")}\n` : ""}Teléfono: ${form.get("phone")}
+${form.get("document") ? `Documento: ${form.get("document")}\n` : ""}Teléfono: ${form.get("phone")}
 Email: ${form.get("email")}
 
 PRODUCTOS
@@ -145,7 +148,7 @@ async function saveOrder(form, orderNumber) {
     customer_name: `${form.get("name")} ${form.get("surname")}`.trim(),
     email: form.get("email"),
     phone: form.get("phone"),
-    document: delivery !== STORE_PICKUP ? form.get("document") : "",
+    document: form.get("document") || "",
     delivery_method: delivery,
     address: delivery !== STORE_PICKUP ? form.get("address") : null,
     city: delivery !== STORE_PICKUP ? form.get("city") : null,
@@ -224,16 +227,29 @@ document.querySelector("[data-order-form]").addEventListener("input", updateStep
 document.querySelector("[data-order-form]").addEventListener("change", updateStepButtons);
 
 function syncDeliveryFields(delivery) {
-    const needsAddress = Boolean(delivery) && delivery !== STORE_PICKUP;
-    const isAndreani = delivery === "Envío por correo Andreani";
-    document.querySelector("[data-address-fields]").classList.toggle("hidden", !needsAddress);
-    document.querySelector("[data-andreani-tools]").classList.toggle("hidden", !isAndreani);
-    ["document", "address", "city", "postal_code"].forEach(name => {
-      document.querySelector(`[name="${name}"]`).required = needsAddress;
+  const isAndreani = delivery === "Envío por correo Andreani";
+  const isMoto = delivery === MOTO_DELIVERY;
+  const needsAddress = isAndreani || isMoto;
+  document.querySelector("[data-address-fields]").classList.toggle("hidden", !needsAddress);
+  document.querySelector("[data-andreani-tools]").classList.toggle("hidden", !isAndreani);
+  const address = document.querySelector('[name="address"]');
+  address.required = needsAddress;
+  address.disabled = !needsAddress;
+  document.querySelectorAll("[data-postal-field]").forEach(field => {
+    field.classList.toggle("hidden", !isAndreani);
+    field.querySelectorAll("input").forEach(input => {
+      input.disabled = !isAndreani;
+      input.required = isAndreani;
     });
-    document.querySelector('[name="document"]').disabled = !needsAddress;
-    syncPaymentAvailability(delivery);
-    updateStepButtons();
+  });
+  const motoNotes = document.querySelector("[data-moto-notes]");
+  const generalNotes = document.querySelector("[data-general-notes]");
+  motoNotes.classList.toggle("hidden", !isMoto);
+  motoNotes.querySelector("textarea").disabled = !isMoto;
+  generalNotes.classList.toggle("hidden", isMoto);
+  generalNotes.querySelector("textarea").disabled = isMoto;
+  syncPaymentAvailability(delivery);
+  updateStepButtons();
 }
 
 document.querySelectorAll('input[name="delivery"]').forEach(input => {

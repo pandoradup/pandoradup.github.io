@@ -212,6 +212,8 @@ function renderOrders() {
           <div><span>Pago</span><strong>${escapeHtml(order.payment_method)}</strong></div>
           <div><span>Entrega</span><strong>${escapeHtml(order.delivery_method)}</strong></div>
           <div><span>Total</span><strong>${money(order.total)}</strong></div>
+          ${order.address ? `<div><span>Dirección</span><strong>${escapeHtml(order.address)}</strong></div>` : ""}
+          ${order.notes ? `<div><span>Observaciones</span><strong>${escapeHtml(order.notes)}</strong></div>` : ""}
         </div>
         <ul class="order-products">
           ${items.map(item => `<li>${escapeHtml(item.name)}${item.size ? ` · Talle: ${escapeHtml(item.size)}` : ""} × ${Number(item.quantity) || 1}</li>`).join("")}
