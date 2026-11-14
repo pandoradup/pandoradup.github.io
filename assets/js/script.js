@@ -147,8 +147,7 @@ function renderMainMenu() {
       </div>
     </div>
     <a href="index.html#promos">Promos</a>
-    <a href="index.html#materiales">Materiales</a>
-    <a href="${escapeHtml(document.querySelector("[data-contact-button]").href)}" target="_blank" rel="noopener">Contacto</a>`;
+    <a href="index.html#materiales">Materiales</a>`;
 }
 
 function promotionRequirementText(requirement) {
