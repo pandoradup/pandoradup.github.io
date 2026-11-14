@@ -852,7 +852,8 @@ function populateIncomingProducts() {
   const select = incomingForm.elements.product_id;
   const current = select.value;
   select.innerHTML = '<option value="">Seleccioná un artículo</option>' + products
-    .filter(product => ["base", "charm"].includes(product.product_type))
+    .filter(product => ["base", "charm"].includes(product.product_type) ||
+      (product.product_type === "simple" && product.category === "packaging"))
     .map(product => `<option value="${product.id}">${escapeHtml(product.name)}</option>`).join("");
   select.value = [...select.options].some(option => option.value === current) ? current : "";
 }
