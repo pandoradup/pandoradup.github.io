@@ -837,13 +837,16 @@ async function loadIncomingItems() {
   const ordered = data.sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending"));
   incomingList.innerHTML = ordered.map(item => {
     const product = products.find(product => product.id === item.product_id);
-    return `<article class="order-admin-card">
-      <h3>${escapeHtml(product?.name || "Artículo")}</h3>
-      <p>${item.quantity} unidades${item.size ? " · " + escapeHtml(item.size) : ""}</p>
-      ${item.account ? `<p>Cuenta: ${escapeHtml(item.account)}</p>` : ""}
-      <p>${incomingStatus[item.status]}</p>
-      ${item.status === "pending" ? `<button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
-        <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>` : ""}
+    return `<article class="incoming-item">
+      <div class="incoming-details">
+        <h3>${escapeHtml(product?.name || "Artículo")}</h3>
+        <p>${item.quantity} ${item.quantity === 1 ? "unidad" : "unidades"}${item.size ? " · " + escapeHtml(item.size) : ""}${item.account ? " · Cuenta: " + escapeHtml(item.account) : ""}</p>
+      </div>
+      <div class="incoming-actions">
+        <span class="status ${item.status === "pending" ? "draft" : item.status === "cancelled" ? "unpublished" : ""}">${incomingStatus[item.status]}</span>
+        ${item.status === "pending" ? `<button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
+          <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>` : ""}
+      </div>
     </article>`;
   }).join("") || '<p class="empty-admin">Todavía no hay artículos registrados.</p>';
 }
