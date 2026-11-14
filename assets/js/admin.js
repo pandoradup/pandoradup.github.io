@@ -51,6 +51,7 @@ function showDashboard(email) {
 }
 
 function renderProducts() {
+  populateIncomingProducts();
   const list = $("[data-product-list]");
   const sortedProducts = [...products].sort((a, b) =>
     String(a.name || "").localeCompare(String(b.name || ""), "es-AR", { sensitivity: "base", numeric: true })
@@ -815,6 +816,95 @@ async function initAdmin() {
   $("[data-login-form] button").disabled = false;
 }
 
+const incomingForm = $("[data-incoming-form]");
+const incomingList = $("[data-incoming-list]");
+const incomingMessage = "[data-incoming-message]";
+const incomingStatus = { pending: "Pendiente", received: "Recibido", cancelled: "Cancelado" };
+
+function updateIncomingSize() {
+  const product = products.find(item => String(item.id) === incomingForm.elements.product_id.value);
+  const sized = product?.product_type === "base";
+  const size = incomingForm.elements.size;
+  $("[data-incoming-size]").hidden = !sized;
+  size.disabled = !sized;
+  size.required = sized;
+  size.value = "";
+}
+
+async function loadIncomingItems() {
+  const { data, error } = await supabase.from("incoming_items").select("*").order("expected_on").order("id");
+  if (error) throw error;
+  const ordered = data.sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending"));
+  incomingList.innerHTML = ordered.map(item => {
+    const product = products.find(product => product.id === item.product_id);
+    const date = new Intl.DateTimeFormat("es-AR", { dateStyle: "medium", timeZone: "UTC" })
+      .format(new Date(item.expected_on + "T00:00:00Z"));
+    return `<article class="order-admin-card">
+      <h3>${escapeHtml(product?.name || "Artículo")}</h3>
+      <p>${item.quantity} unidades${item.size ? " · " + escapeHtml(item.size) : ""} · Llegada prevista: ${date}</p>
+      <p>${incomingStatus[item.status]}</p>
+      ${item.status === "pending" ? `<button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
+        <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>` : ""}
+    </article>`;
+  }).join("") || '<p class="empty-admin">Todavía no hay artículos registrados.</p>';
+}
+
+function populateIncomingProducts() {
+  const select = incomingForm.elements.product_id;
+  const current = select.value;
+  select.innerHTML = '<option value="">Seleccioná un artículo</option>' + products
+    .filter(product => ["base", "charm"].includes(product.product_type))
+    .map(product => `<option value="${product.id}">${escapeHtml(product.name)}</option>`).join("");
+  select.value = [...select.options].some(option => option.value === current) ? current : "";
+}
+
+incomingForm.elements.size.innerHTML = '<option value="">Seleccioná un talle</option>' + PRODUCT_SIZES
+  .map(size => `<option>${size}</option>`).join("");
+incomingForm.elements.product_id.addEventListener("change", updateIncomingSize);
+
+incomingForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const values = new FormData(incomingForm);
+  const button = incomingForm.querySelector('[type="submit"]');
+  button.disabled = true;
+  try {
+    const { error } = await supabase.from("incoming_items").insert({
+      product_id: values.get("product_id"),
+      size: values.get("size") || null,
+      quantity: Number(values.get("quantity")),
+      expected_on: values.get("expected_on")
+    });
+    if (error) throw error;
+    incomingForm.reset();
+    updateIncomingSize();
+    await loadIncomingItems();
+    message(incomingMessage, "Artículo registrado.");
+  } catch (error) {
+    message(incomingMessage, error.message, true);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+incomingList.addEventListener("click", async event => {
+  const button = event.target.closest("[data-incoming-action]");
+  if (!button) return;
+  const receive = button.dataset.incomingAction === "receive";
+  const buttons = [...button.parentElement.querySelectorAll("button")];
+  buttons.forEach(button => { button.disabled = true; });
+  try {
+    const { error } = await supabase.rpc("resolve_incoming_item", { p_id: button.dataset.id, p_receive: receive });
+    if (error) throw error;
+    const refresh = await Promise.allSettled([loadIncomingItems(), receive && loadProducts()]);
+    const result = receive ? "Artículo recibido. Stock físico actualizado." : "Entrada cancelada.";
+    const failed = refresh.some(result => result.status === "rejected");
+    message(incomingMessage, failed ? result + " Recargá el panel para actualizar la vista." : result, failed);
+  } catch (error) {
+    buttons.forEach(button => { button.disabled = false; });
+    message(incomingMessage, error.message, true);
+  }
+});
+
 async function loadDashboardData() {
   const panels = [...document.querySelectorAll("[data-panel]")];
   panels.forEach(panel => { panel.inert = true; });
@@ -831,6 +921,7 @@ async function loadDashboardData() {
   const contentReady = loadContent();
   const results = await Promise.allSettled([
     unlock(ordersReady, ["orders"]),
+    unlock(productsReady.then(loadIncomingItems), ["incoming"]),
     unlock(categoriesReady, ["categories"]),
     unlock(Promise.all([productsReady, categoriesReady]), ["products"]),
     unlock(contentReady, ["content"]),

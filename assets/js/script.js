@@ -282,10 +282,7 @@ function openProductDetail(product) {
   document.querySelector("[data-product-detail-price]").innerHTML =
     `${product.old ? `<del>${money(product.old)}</del>` : ""}<span>${money(product.price)}</span>`;
   const stock = productAvailableStock(product);
-  const stockText = stock === 1 ? "1 unidad disponible" : `${stock} unidades disponibles`;
-  document.querySelector("[data-product-detail-stock]").innerHTML = stock === 0
-    ? "Sin stock"
-    : `${stock <= 2 ? '<span class="low-stock-warning">¡Quedan pocas unidades!</span>' : ""}<span>${stockText}</span>`;
+  document.querySelector("[data-product-detail-stock]").textContent = stock === 0 ? "Sin stock" : "";
   const sizeField = document.querySelector("[data-product-size-field]");
   const sizeSelect = document.querySelector("[data-product-size]");
   sizeField.classList.toggle("hidden", !needsSize(product));
@@ -293,7 +290,7 @@ function openProductDetail(product) {
     sizeSelect.innerHTML = `<option value="">Seleccioná un talle</option>` + PRODUCT_SIZES.map(size => {
       const available = productSizeAvailable(product, size);
       const label = available > 0
-        ? `${size} · ${available} ${available === 1 ? "disponible" : "disponibles"}`
+        ? size
         : `${size} · Sin stock`;
       return `<option value="${escapeHtml(size)}" ${available === 0 ? "disabled" : ""}>${escapeHtml(label)}</option>`;
     }).join("");

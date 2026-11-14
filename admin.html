@@ -56,6 +56,7 @@
 
       <nav class="admin-tabs" aria-label="Secciones del panel">
         <button class="active" type="button" data-tab="orders">Pedidos</button>
+        <button type="button" data-tab="incoming">Por recibir</button>
         <button type="button" data-tab="products">Productos</button>
         <button type="button" data-tab="categories">Categorías</button>
         <button type="button" data-tab="promotions">Promociones</button>
@@ -75,6 +76,19 @@
         </div>
         <div class="order-admin-list" data-order-list></div>
         <p class="empty-admin hidden" data-orders-empty>No hay pedidos pendientes.</p>
+      </div>
+
+      <div class="tab-panel hidden" data-panel="incoming">
+        <div class="panel-heading"><h2>Por recibir</h2></div>
+        <form class="content-form" data-incoming-form>
+          <label>Artículo<select name="product_id" required></select></label>
+          <label hidden data-incoming-size>Talle<select name="size" disabled></select></label>
+          <label>Cantidad<input name="quantity" type="number" min="1" step="1" required></label>
+          <label>Llegada prevista<input name="expected_on" type="date" required></label>
+          <button class="primary-action" type="submit">AGREGAR ARTÍCULO</button>
+        </form>
+        <p class="form-message" role="status" data-incoming-message></p>
+        <div class="product-admin-list" data-incoming-list></div>
       </div>
 
       <div class="tab-panel hidden" data-panel="products">
@@ -324,6 +338,6 @@
   </div>
 
   <script src="assets/js/product-sizes.js?v=20261114-2"></script>
-  <script type="module" src="assets/js/admin.js?v=20261114-3"></script>
+  <script type="module" src="assets/js/admin.js?v=20261114-4"></script>
 </body>
 </html>

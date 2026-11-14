@@ -1,0 +1,56 @@
+create table public.incoming_items (
+  id uuid primary key default gen_random_uuid(),
+  product_id bigint not null references public.products(id) on delete restrict,
+  size text,
+  quantity integer not null check (quantity > 0),
+  expected_on date not null,
+  status text not null default 'pending' check (status in ('pending', 'received', 'cancelled'))
+);
+
+alter table public.incoming_items enable row level security;
+revoke all on public.incoming_items from anon, authenticated;
+grant select, insert on public.incoming_items to authenticated;
+create policy "Admin tracks incoming items" on public.incoming_items
+  for all to authenticated using (public.is_admin())
+  with check (public.is_admin() and status = 'pending');
+
+create function public.resolve_incoming_item(p_id uuid, p_receive boolean)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  item public.incoming_items%rowtype;
+begin
+  if not public.is_admin() then
+    raise exception 'Acceso restringido';
+  end if;
+
+  select * into item from public.incoming_items where id = p_id for update;
+  if not found or item.status <> 'pending' then
+    raise exception 'El artículo ya fue procesado o no existe';
+  end if;
+
+  if p_receive then
+    update public.products
+    set stock = case when item.size is null then stock else
+          (select coalesce(sum(value::integer), 0) from jsonb_each_text(size_stock))
+        end + item.quantity,
+        size_stock = case when item.size is null then size_stock else
+          jsonb_set(size_stock, array[item.size],
+            to_jsonb(coalesce((size_stock->>item.size)::integer, 0) + item.quantity))
+        end,
+        updated_at = now()
+    where id = item.product_id
+      and ((product_type = 'base' and item.size in ('17 cm','18 cm','19 cm','20 cm'))
+        or (product_type = 'charm' and item.size is null));
+    if not found then
+      raise exception 'El tipo de producto o el talle ya no coincide';
+    end if;
+  end if;
+
+  update public.incoming_items
+  set status = case when p_receive then 'received' else 'cancelled' end
+  where id = p_id;
+end;
+$$;
+
+revoke all on function public.resolve_incoming_item(uuid, boolean) from public, anon;
+grant execute on function public.resolve_incoming_item(uuid, boolean) to authenticated;
