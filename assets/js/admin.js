@@ -533,7 +533,6 @@ function openProduct(product = null) {
   form.elements.old_price.value = product?.old_price || "";
   form.elements.stock.value = product?.stock ?? 0;
   fillSizeStockFields(product);
-  form.elements.sort_order.value = product?.sort_order ?? 0;
   form.elements.image_url.value = product?.image_url || "";
   form.elements.gallery_urls.value = JSON.stringify(product?.gallery_urls || []);
   renderProductPhotoPreviews();
@@ -1083,7 +1082,6 @@ $("[data-product-form]").addEventListener("submit", async event => {
       stock: productType === "composite" ? 0 : usesSizes ? sizeStockTotal({ size_stock: sizeStock }) : Number(form.elements.stock.value),
       size_stock: sizeStock,
       product_type: storedProductType,
-      sort_order: Number(form.elements.sort_order.value || 0),
       image_url: imageUrl,
       gallery_urls: galleryUrls,
       published: form.elements.published.checked,
