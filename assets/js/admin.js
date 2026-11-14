@@ -819,7 +819,6 @@ async function initAdmin() {
 const incomingForm = $("[data-incoming-form]");
 const incomingList = $("[data-incoming-list]");
 const incomingMessage = "[data-incoming-message]";
-const incomingStatus = { pending: "Pendiente", received: "Recibido", cancelled: "Cancelado" };
 
 function updateIncomingSize() {
   const product = products.find(item => String(item.id) === incomingForm.elements.product_id.value);
@@ -832,10 +831,9 @@ function updateIncomingSize() {
 }
 
 async function loadIncomingItems() {
-  const { data, error } = await supabase.from("incoming_items").select("*").order("created_at", { ascending: false }).order("id");
+  const { data, error } = await supabase.from("incoming_items").select("*").eq("status", "pending").order("created_at", { ascending: false }).order("id");
   if (error) throw error;
-  const ordered = data.sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending"));
-  incomingList.innerHTML = ordered.map(item => {
+  incomingList.innerHTML = data.map(item => {
     const product = products.find(product => product.id === item.product_id);
     return `<article class="incoming-item">
       <div class="incoming-details">
@@ -843,12 +841,11 @@ async function loadIncomingItems() {
         <p>${item.quantity} ${item.quantity === 1 ? "unidad" : "unidades"}${item.size ? " · " + escapeHtml(item.size) : ""}${item.account ? " · Cuenta: " + escapeHtml(item.account) : ""}</p>
       </div>
       <div class="incoming-actions">
-        <span class="status ${item.status === "pending" ? "draft" : item.status === "cancelled" ? "unpublished" : ""}">${incomingStatus[item.status]}</span>
-        ${item.status === "pending" ? `<button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
-          <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>` : ""}
+        <button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
+          <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>
       </div>
     </article>`;
-  }).join("") || '<p class="empty-admin">Todavía no hay artículos registrados.</p>';
+  }).join("") || '<p class="empty-admin">No hay artículos por recibir.</p>';
 }
 
 function populateIncomingProducts() {
