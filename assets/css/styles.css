@@ -124,10 +124,10 @@ h1 em, h2 em { font-weight: 400; color: #8f726a; }
 .product-stock-ribbon {
   position: absolute;
   z-index: 2;
-  top: 50%;
-  left: 50%;
-  width: 170%;
-  transform: translate(-50%, -50%) rotate(-52deg);
+  top: 14.43%;
+  left: 18.5%;
+  width: 110%;
+  transform: translate(-50%, -50%) rotate(-45deg);
   padding: 9px 0;
   background: rgba(139, 43, 53, .92);
   color: #fff;
