@@ -29,6 +29,8 @@ function groupCart(items) {
   }, {}));
 }
 
+const { cardPrice, cardMoney, creditMethod, priceMarkup } = window.PaymentPrices;
+
 let groupedItems = groupCart(cart);
 let promotions = window.PromotionEngine.parse(localStorage.getItem("pandoraPromotions"));
 let promotionPricing = window.PromotionEngine.calculate(cart, cart, promotions);
@@ -41,11 +43,11 @@ function renderSummary() {
     <article class="summary-item">
       <img src="${escapeHtml(item.image || item.image_url)}" alt="">
       <div><h3>${escapeHtml(item.name)}</h3><p>${item.size ? `Talle: ${escapeHtml(item.size)} · ` : ""}Cantidad: ${item.quantity}</p></div>
-      <strong>${money(item.price * item.quantity)}</strong>
+      <strong>${priceMarkup(item.price * item.quantity, money)}</strong>
     </article>
   `).join("");
-  document.querySelector("[data-subtotal]").textContent = money(promotionPricing.subtotal);
-  document.querySelector("[data-total]").textContent = money(total);
+  document.querySelector("[data-subtotal]").innerHTML = priceMarkup(promotionPricing.subtotal, money);
+  document.querySelector("[data-total]").innerHTML = priceMarkup(subtotal, money, selectedPayment);
   const promotionSummary = document.querySelector("[data-promotion-summary]");
   promotionSummary.classList.toggle("hidden", promotionPricing.applications.length === 0);
   promotionSummary.innerHTML = promotionPricing.applications.map(application =>
@@ -55,8 +57,8 @@ function renderSummary() {
 
 function updatePayment(payment) {
   selectedPayment = payment || "";
-  total = subtotal;
-  document.querySelector("[data-total]").textContent = money(total);
+  total = selectedPayment === creditMethod ? cardPrice(subtotal) : subtotal;
+  document.querySelector("[data-total]").innerHTML = priceMarkup(subtotal, money, selectedPayment);
 }
 
 function syncPaymentAvailability(delivery) {
@@ -108,7 +110,7 @@ ${promotionLines}
 
 Subtotal productos: ${money(promotionPricing.subtotal)}
 Descuento promociones: -${money(promotionPricing.discount)}
-TOTAL: ${money(total)}
+TOTAL: ${selectedPayment === creditMethod ? cardMoney.format(total) : money(total)}
 Entrega: ${deliveryDetails}
 Forma de pago: ${selectedPayment}
 ${notesLine}`;
@@ -162,7 +164,7 @@ async function saveOrder(form, orderNumber) {
     notes: form.get("notes") || null,
     subtotal: promotionPricing.subtotal,
     discount: promotionPricing.discount,
-    total: promotionPricing.total,
+    total,
     items: groupedItems.map(item => ({
       id: item.id,
       name: item.name,

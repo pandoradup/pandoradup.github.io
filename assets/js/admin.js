@@ -10,6 +10,10 @@ const money = value => new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0
 }).format(value || 0);
 
+const orderTotal = order => order.payment_method === window.PaymentPrices.creditMethod
+  ? window.PaymentPrices.cardMoney.format(order.total)
+  : money(order.total);
+
 let supabase;
 let products = [];
 let orders = [];
@@ -176,7 +180,7 @@ Recibimos tu pedido y vamos a preparar tu paquete con lo que elegiste:
 ${products}
 
 Número de pedido: ${order.order_number}
-Total de tu compra: ${money(order.total)}
+Total de tu compra: ${orderTotal(order)}
 Modalidad de entrega: ${order.delivery_method}${address}${order.address ? "\nEl costo del envío se coordina por separado." : ""}
 
 ¡Gracias por tu compra! Coordinamos por acá los detalles del pago y la entrega. 💕`;
@@ -211,7 +215,7 @@ function renderOrders() {
           <div><span>Teléfono</span><strong>${escapeHtml(order.phone)}</strong></div>
           <div><span>Pago</span><strong>${escapeHtml(order.payment_method)}</strong></div>
           <div><span>Entrega</span><strong>${escapeHtml(order.delivery_method)}</strong></div>
-          <div><span>Total</span><strong>${money(order.total)}</strong></div>
+          <div><span>Total</span><strong>${orderTotal(order)}</strong></div>
           ${order.address ? `<div><span>Dirección</span><strong>${escapeHtml(order.address)}</strong></div>` : ""}
           ${order.notes ? `<div><span>Observaciones</span><strong>${escapeHtml(order.notes)}</strong></div>` : ""}
         </div>

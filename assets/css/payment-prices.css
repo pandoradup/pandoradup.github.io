@@ -1,0 +1,14 @@
+.payment-prices {
+  display: inline-grid;
+  gap: .2em;
+  text-align: start;
+}
+.payment-prices small,
+.payment-price-card {
+  font-size: .8em;
+  font-weight: 500;
+}
+.payment-prices small { white-space: nowrap; }
+.payment-price-card { color: #68625c; }
+.payment-price-card small { font-size: 1em; }
+.payment-price-selected { font-weight: 700; }

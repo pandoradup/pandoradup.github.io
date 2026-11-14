@@ -184,7 +184,7 @@ function renderPromotionShowcase() {
       ${promotion.image_url ? `<img class="promotion-card-image" loading="lazy" decoding="async" src="${escapeHtml(promotion.image_url)}" alt="">` : ""}
       <h3>${escapeHtml(promotion.name)}</h3>
       <p>Agregá ${joinPromotionRequirements(promotion.requirements.map(promotionRequirementText))}.</p>
-      <strong>${promotion.type === "gift" ? `${escapeHtml(promotion.gift)} de regalo` : money(promotion.price)}</strong>
+      <strong>${promotion.type === "gift" ? `${escapeHtml(promotion.gift)} de regalo` : window.PaymentPrices.priceMarkup(promotion.price, money)}</strong>
       <a href="#productos">ELEGIR PRODUCTOS <span>→</span></a>
     </article>`).join("");
 }
@@ -261,7 +261,7 @@ function renderProducts() {
       </div>
       <div class="product-info" data-product-open="${product.id}">
         <h3>${escapeHtml(product.name)}</h3>
-        <div class="product-price">${product.old ? `<del>${money(product.old)}</del>` : ""}<span>${money(product.price)}</span></div>
+        <div class="product-price">${product.old ? `<del>${money(product.old)}</del>` : ""}${window.PaymentPrices.priceMarkup(product.price, money)}</div>
       </div>
     </article>`;
   }).join("");
@@ -289,7 +289,7 @@ function openProductDetail(product) {
   document.querySelector("[data-product-detail-name]").textContent = product.name;
   document.querySelector("[data-product-detail-category]").textContent = product.category;
   document.querySelector("[data-product-detail-price]").innerHTML =
-    `${product.old ? `<del>${money(product.old)}</del>` : ""}<span>${money(product.price)}</span>`;
+    `${product.old ? `<del>${money(product.old)}</del>` : ""}${window.PaymentPrices.priceMarkup(product.price, money)}`;
   const stock = productAvailableStock(product);
   document.querySelector("[data-product-detail-stock]").textContent = stock === 0 ? "Sin stock" : "";
   const sizeField = document.querySelector("[data-product-size-field]");
@@ -559,7 +559,7 @@ function updateCart() {
         </button>
       </div>
       <div class="cart-item-actions">
-        <strong>${money(item.price * item.quantity)}</strong>
+        <strong>${window.PaymentPrices.priceMarkup(item.price * item.quantity, money)}</strong>
         <div class="quantity-control" aria-label="Cantidad de ${escapeHtml(item.name)}">
           <button type="button" data-decrease="${escapeHtml(item.cartKey)}" aria-label="Restar uno">−</button>
           <span>${item.quantity} UN.</span>
@@ -575,10 +575,10 @@ function updateCart() {
       <strong>✓ Promo: ${escapeHtml(application.name)}${application.applications > 1 ? ` ×${application.applications}` : ""}</strong>
       <span>${application.gift
         ? `Incluye ${escapeHtml(application.gift)} de regalo`
-        : `Ahorrás ${money(application.saving)} · Precio promo ${money(application.promotionalAmount)}`}</span>
+        : `Ahorrás ${money(application.saving)} · Precio promo ${window.PaymentPrices.priceMarkup(application.promotionalAmount, money)}`}</span>
     </div>`).join("");
-  document.querySelector("[data-cart-subtotal]").textContent = money(pricing.subtotal);
-  document.querySelector("[data-cart-total]").textContent = money(pricing.total);
+  document.querySelector("[data-cart-subtotal]").innerHTML = window.PaymentPrices.priceMarkup(pricing.subtotal, money);
+  document.querySelector("[data-cart-total]").innerHTML = window.PaymentPrices.priceMarkup(pricing.total, money);
   localStorage.setItem("pandoraCart", JSON.stringify(cart));
   localStorage.setItem("pandoraPricing", JSON.stringify(pricing));
 }
