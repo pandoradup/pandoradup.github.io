@@ -52,7 +52,7 @@ try {
   cart = [];
 }
 const money = value => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(value);
-const PRODUCT_SIZES = ["17 cm", "18 cm", "19 cm", "20 cm"];
+const PRODUCT_SIZES = window.PRODUCT_SIZES;
 const isBraceletCategory = value => /brazalet|pulsera/.test(String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
 const needsSize = product => ["base", "composite"].includes(product?.product_type) || isBraceletCategory(product?.category);
 const cartItemKey = item => `${item.id}::${item.size || ""}`;
@@ -84,26 +84,17 @@ function mergeSizeStock(product = {}, fallback = {}) {
 }
 
 function resolvedSizeStock(product = {}) {
-  const available = normalizeSizeStock(product.available_size_stock);
-  return sizeStockTotal(available) > 0 ? available : normalizeSizeStock(product.size_stock);
+  return normalizeSizeStock(product.available_size_stock ?? product.size_stock);
 }
 
 function productAvailableStock(product = {}) {
-  product = product || {};
+  if (!needsSize(product)) return Number(product?.stock) || 0;
   const sizedTotal = sizeStockTotal(resolvedSizeStock(product));
-  if (!needsSize(product)) return Number(product.stock) || 0;
-  if (sizedTotal === 0 && Number(product.stock) > 0) return Number(product.stock);
-  return Math.min(sizedTotal, Number(product.stock) || sizedTotal);
+  return Math.min(sizedTotal, Math.max(0, Number(product.stock ?? sizedTotal) || 0));
 }
 
 function productSizeAvailable(product = {}, size = "") {
-  product = product || {};
-  const sizes = resolvedSizeStock(product);
-  const available = Math.max(0, Number(sizes[size]) || 0);
-  if (sizeStockTotal(sizes) === 0 && Number(product.stock) > 0) return Number(product.stock);
-  return product.product_type === "composite"
-    ? Math.min(available, Number(product.stock) || available)
-    : available;
+  return Math.min(resolvedSizeStock(product)[size] || 0, productAvailableStock(product));
 }
 
 function shuffle(items) {

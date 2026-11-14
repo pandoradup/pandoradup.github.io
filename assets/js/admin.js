@@ -21,7 +21,7 @@ const editedImages = new WeakMap();
 let editedGalleryFiles = [];
 let galleryEditQueue = [];
 let cropState = null;
-const PRODUCT_SIZES = ["17 cm", "18 cm", "19 cm", "20 cm"];
+const PRODUCT_SIZES = window.PRODUCT_SIZES;
 
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
   "&": "&amp;",
@@ -117,10 +117,9 @@ function collectSizeStock(form) {
 function fillSizeStockFields(product = {}) {
   product = product || {};
   const values = normalizedSizeStock(product);
-  PRODUCT_SIZES.forEach(size => {
-    const field = $("[data-product-form]").elements[`size_stock_${size}`];
-    if (field) field.value = values[size] || 0;
-  });
+  $("[data-size-stock-fields]").innerHTML = PRODUCT_SIZES.map(size =>
+    `<label>${size}<input name="size_stock_${size}" type="number" min="0" step="1" value="${values[size]}"></label>`
+  ).join("");
 }
 
 function isMissingSizeStockColumn(error) {

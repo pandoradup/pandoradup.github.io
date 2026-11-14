@@ -279,11 +279,7 @@
             <h3>Stock por talle</h3>
             <p>Cargá la cantidad disponible para cada talle.</p>
           </div>
-          <div class="size-stock-grid">
-            <label>18 cm<input name="size_stock_18 cm" type="number" min="0" step="1" value="0"></label>
-            <label>19 cm<input name="size_stock_19 cm" type="number" min="0" step="1" value="0"></label>
-            <label>20 cm<input name="size_stock_20 cm" type="number" min="0" step="1" value="0"></label>
-          </div>
+          <div class="size-stock-grid" data-size-stock-fields></div>
         </section>
         <label>Foto del producto<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
         <input name="image_url" type="hidden">
@@ -328,6 +324,7 @@
     </section>
   </div>
 
-  <script type="module" src="assets/js/admin.js?v=20261114-1"></script>
+  <script src="assets/js/product-sizes.js?v=20261114-2"></script>
+  <script type="module" src="assets/js/admin.js?v=20261114-2"></script>
 </body>
 </html>
