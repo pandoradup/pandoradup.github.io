@@ -52,7 +52,7 @@ try {
   cart = [];
 }
 const money = value => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(value);
-const PRODUCT_SIZES = ["18 cm", "19 cm", "20 cm"];
+const PRODUCT_SIZES = ["17 cm", "18 cm", "19 cm", "20 cm"];
 const isBraceletCategory = value => /brazalet|pulsera/.test(String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
 const needsSize = product => ["base", "composite"].includes(product?.product_type) || isBraceletCategory(product?.category);
 const cartItemKey = item => `${item.id}::${item.size || ""}`;

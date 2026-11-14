@@ -21,7 +21,7 @@ const editedImages = new WeakMap();
 let editedGalleryFiles = [];
 let galleryEditQueue = [];
 let cropState = null;
-const PRODUCT_SIZES = ["18 cm", "19 cm", "20 cm"];
+const PRODUCT_SIZES = ["17 cm", "18 cm", "19 cm", "20 cm"];
 
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
   "&": "&amp;",
