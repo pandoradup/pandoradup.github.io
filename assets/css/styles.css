@@ -161,7 +161,7 @@ h1 em, h2 em { font-weight: 400; color: #8f726a; }
 .catalog-view .promotions-section,
 .catalog-view .editorial,
 .catalog-view .categories,
-.catalog-view .story,
+.catalog-view .story { display: none; }
 .catalog-view .products-section { min-height: calc(100vh - 161px); padding-top: 75px; }
 .catalog-view .products-section .section-heading { align-items: flex-start; }
 .catalog-view .product-grid { margin: 0; padding: 0; display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 28px 18px; overflow: visible; scroll-snap-type: none; }

@@ -8,9 +8,6 @@ let storeClient = null;
 let storeLoading = true;
 let promotions = [];
 let storeCategories = [];
-const catalogParams = new URLSearchParams(window.location.search);
-const requestedCategory = catalogParams.get("category");
-const requestedSearch = catalogParams.get("search");
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
 })[character]);
@@ -32,16 +29,29 @@ function renderMultilineContent(element, value) {
   });
 }
 
-if (requestedCategory || requestedSearch) {
-  document.body.classList.add("catalog-view");
-  activeFilter = requestedCategory || "todos";
-  searchTerm = requestedSearch || "";
-  document.querySelector("[data-catalog-eyebrow]").textContent = requestedSearch ? "RESULTADOS DE BÚSQUEDA" : "CATÁLOGO";
-  document.querySelector("[data-catalog-title]").textContent = requestedSearch
-    ? `Resultados para “${requestedSearch}”`
-    : requestedCategory === "todos" ? "Todos los productos" : requestedCategory;
+const homeCatalogHeading = {
+  products_kicker: document.querySelector("[data-catalog-eyebrow]").textContent,
+  products_title: document.querySelector("[data-catalog-title]").textContent
+};
+
+function syncCatalogView() {
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get("category");
+  searchTerm = params.get("search") || "";
+  activeFilter = category || "todos";
+  document.body.classList.toggle("catalog-view", Boolean(category || searchTerm));
+  document.querySelector("[data-catalog-eyebrow]").textContent = searchTerm ? "RESULTADOS DE BÚSQUEDA" : category ? "CATÁLOGO" : homeCatalogHeading.products_kicker;
+  const categoryName = storeCategories.find(item => item.id === activeFilter)?.name;
+  document.querySelector("[data-catalog-title]").textContent = searchTerm
+    ? `Resultados para “${searchTerm}”`
+    : category ? categoryName || "Todos los productos" : homeCatalogHeading.products_title;
   document.querySelector("[data-search-input]").value = searchTerm;
+  document.querySelectorAll("[data-filter]").forEach(button =>
+    button.classList.toggle("active", button.dataset.filter === activeFilter)
+  );
 }
+
+syncCatalogView();
 try {
   const savedCart = JSON.parse(localStorage.getItem("pandoraCart"));
   cart = Array.isArray(savedCart) ? savedCart.filter(item =>
@@ -125,7 +135,7 @@ function mixProducts(items) {
 
 function renderMainMenu() {
   const categoryLinks = storeCategories.map(category =>
-    `<a href="index.html?category=${encodeURIComponent(category.id)}">${escapeHtml(category.name)}</a>`
+    `<a data-filter-link="${escapeHtml(category.id)}" href="index.html?category=${encodeURIComponent(category.id)}">${escapeHtml(category.name)}</a>`
   ).join("");
   document.querySelector("[data-main-menu]").innerHTML = `
     <a href="index.html#productos">Novedades</a>
@@ -133,7 +143,7 @@ function renderMainMenu() {
       <button type="button" data-products-menu aria-expanded="false">Productos <span aria-hidden="true">⌄</span></button>
       <div class="nav-product-dropdown">
         ${categoryLinks}
-        <a class="view-all-products" href="index.html?category=todos">Ver todo</a>
+        <a class="view-all-products" data-filter-link="todos" href="index.html?category=todos">Ver todo</a>
       </div>
     </div>
     <a href="index.html#promos">Promos</a>
@@ -341,8 +351,10 @@ function setStoreBackground(element, url, priority = false) {
 function applyStoreContent(content) {
   const contentValues = Object.fromEntries(content.map(item => [item.key, item.value]));
   content.forEach(item => {
-    if (document.body.classList.contains("catalog-view") &&
-        ["products_kicker", "products_title"].includes(item.key)) return;
+    if (["products_kicker", "products_title"].includes(item.key)) {
+      homeCatalogHeading[item.key] = item.value;
+      if (document.body.classList.contains("catalog-view")) return;
+    }
     if (item.key === "announcement") {
       renderAnnouncement(item.value);
       return;
@@ -439,7 +451,7 @@ async function loadStoreData() {
       document.querySelector("[data-store-categories]").innerHTML = categories.map(category => {
         const imageUrl = category.image_url || contentValues[`category_${category.id}_image`] || "";
         return `
-          <a href="#productos" data-filter-link="${escapeHtml(category.id)}" class="category"
+          <a href="index.html?category=${encodeURIComponent(category.id)}" data-filter-link="${escapeHtml(category.id)}" class="category"
             ${imageUrl ? `data-background-src="${escapeHtml(imageUrl)}"` : ""}>
             <span>${escapeHtml(category.name)}</span>
           </a>`;
@@ -450,13 +462,7 @@ async function loadStoreData() {
       document.querySelectorAll("[data-filter]").forEach(button =>
         button.addEventListener("click", () => setFilter(button.dataset.filter))
       );
-      document.querySelectorAll("[data-filter]").forEach(button =>
-        button.classList.toggle("active", button.dataset.filter === activeFilter)
-      );
-      if (requestedCategory) {
-        const category = categories.find(item => item.id === requestedCategory);
-        if (category) document.querySelector("[data-catalog-title]").textContent = category.name;
-      }
+      syncCatalogView();
     }
     updateCart();
   } catch (error) {
@@ -504,12 +510,17 @@ document.querySelector("[data-promotion-prev]").addEventListener("click", () => 
 document.querySelector("[data-promotion-next]").addEventListener("click", () => movePromotionCarousel(1));
 
 function openCategoryView(category) {
-  if (category === "todos") {
-    window.location.href = "index.html?category=todos";
-    return;
-  }
-  window.location.href = `index.html?category=${encodeURIComponent(category)}`;
+  const url = `?category=${encodeURIComponent(category)}`;
+  if (window.location.search !== url || window.location.hash) history.pushState(null, "", url);
+  syncCatalogView();
+  renderProducts();
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
+
+window.addEventListener("popstate", () => {
+  syncCatalogView();
+  renderProducts();
+});
 
 document.querySelectorAll("[data-home-logo]").forEach(logo => {
   logo.addEventListener("click", event => {
@@ -704,7 +715,7 @@ document.addEventListener("click", async event => {
     return;
   }
   const filterLink = event.target.closest("[data-filter-link]");
-  if (filterLink) {
+  if (filterLink && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
     event.preventDefault();
     openCategoryView(filterLink.dataset.filterLink);
   }
