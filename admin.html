@@ -82,9 +82,9 @@
         <div class="panel-heading"><h2>Por recibir</h2></div>
         <form class="content-form" data-incoming-form>
           <label>Artículo<select name="product_id" required></select></label>
-          <label hidden data-incoming-size>Talle<select name="size" disabled></select></label>
+          <label class="hidden" data-incoming-size>Talle<select name="size" disabled></select></label>
           <label>Cantidad<input name="quantity" type="number" min="1" step="1" required></label>
-          <label>Llegada prevista<input name="expected_on" type="date" required></label>
+          <label>Cuenta<input name="account" type="text" maxlength="200" required></label>
           <button class="primary-action" type="submit">AGREGAR ARTÍCULO</button>
         </form>
         <p class="form-message" role="status" data-incoming-message></p>
@@ -338,6 +338,6 @@
   </div>
 
   <script src="assets/js/product-sizes.js?v=20261114-2"></script>
-  <script type="module" src="assets/js/admin.js?v=20261114-4"></script>
+  <script type="module" src="assets/js/admin.js?v=20261114-5"></script>
 </body>
 </html>

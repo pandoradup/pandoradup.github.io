@@ -825,23 +825,22 @@ function updateIncomingSize() {
   const product = products.find(item => String(item.id) === incomingForm.elements.product_id.value);
   const sized = product?.product_type === "base";
   const size = incomingForm.elements.size;
-  $("[data-incoming-size]").hidden = !sized;
+  $("[data-incoming-size]").classList.toggle("hidden", !sized);
   size.disabled = !sized;
   size.required = sized;
   size.value = "";
 }
 
 async function loadIncomingItems() {
-  const { data, error } = await supabase.from("incoming_items").select("*").order("expected_on").order("id");
+  const { data, error } = await supabase.from("incoming_items").select("*").order("created_at", { ascending: false }).order("id");
   if (error) throw error;
   const ordered = data.sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending"));
   incomingList.innerHTML = ordered.map(item => {
     const product = products.find(product => product.id === item.product_id);
-    const date = new Intl.DateTimeFormat("es-AR", { dateStyle: "medium", timeZone: "UTC" })
-      .format(new Date(item.expected_on + "T00:00:00Z"));
     return `<article class="order-admin-card">
       <h3>${escapeHtml(product?.name || "Artículo")}</h3>
-      <p>${item.quantity} unidades${item.size ? " · " + escapeHtml(item.size) : ""} · Llegada prevista: ${date}</p>
+      <p>${item.quantity} unidades${item.size ? " · " + escapeHtml(item.size) : ""}</p>
+      ${item.account ? `<p>Cuenta: ${escapeHtml(item.account)}</p>` : ""}
       <p>${incomingStatus[item.status]}</p>
       ${item.status === "pending" ? `<button class="primary-action" type="button" data-incoming-action="receive" data-id="${item.id}">RECIBIDO</button>
         <button class="secondary-action" type="button" data-incoming-action="cancel" data-id="${item.id}">CANCELAR</button>` : ""}
@@ -872,7 +871,7 @@ incomingForm.addEventListener("submit", async event => {
       product_id: values.get("product_id"),
       size: values.get("size") || null,
       quantity: Number(values.get("quantity")),
-      expected_on: values.get("expected_on")
+      account: values.get("account").trim()
     });
     if (error) throw error;
     incomingForm.reset();
