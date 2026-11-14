@@ -78,7 +78,7 @@ function paymentDescription() {
 function syncPaymentAvailability(delivery) {
   const options = [
     ["[data-cash-payment]", delivery === STORE_PICKUP],
-    ["[data-credit-payment]", delivery === MOTO_DELIVERY || delivery === "Envío por correo Andreani"]
+    ["[data-credit-payment]", Boolean(delivery)]
   ];
   options.forEach(([selector, available]) => {
     const card = document.querySelector(selector);

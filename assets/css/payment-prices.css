@@ -10,6 +10,7 @@
 }
 .payment-prices small { white-space: nowrap; }
 .payment-price-card { color: #68625c; font-size: max(9px, .65em); }
+.promotion-card .payment-price-card { font-size: clamp(9px, .5em, 12px); }
 .payment-price-card small { font-size: 1em; }
 
 .payment-plans {
