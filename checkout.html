@@ -65,7 +65,7 @@
                 <span><strong>Envío por correo</strong><small>Entrega mediante Andreani a todo el país.</small></span>
               </label>
             </fieldset>
-            <p class="delivery-payment-notice hidden" data-delivery-payment-notice role="status">Los envíos a domicilio se abonan por transferencia bancaria. El pago en efectivo solo se acepta en retiros en el local o en casos excepcionales de envío.</p>
+            <p class="delivery-payment-notice hidden" data-delivery-payment-notice role="status">Para envíos a domicilio, podés pagar por transferencia bancaria o con tarjeta de crédito. El efectivo se acepta para retiro en el local o en casos excepcionales de envío.</p>
             <div class="address-fields hidden" data-address-fields>
               <label class="hidden" data-postal-field>Documento del destinatario<input name="document" inputmode="numeric" pattern="[0-9]{7,11}" disabled></label>
               <label>Dirección de entrega<input name="address" autocomplete="street-address"></label>
@@ -99,6 +99,10 @@
               <label class="payment-card">
                 <input type="radio" name="payment" value="Transferencia" required>
                 <span><strong>Transferencia bancaria</strong><small>Recibirás los datos para transferir.</small></span>
+              </label>
+              <label class="payment-card hidden" data-credit-payment>
+                <input type="radio" name="payment" value="Tarjeta de crédito" required disabled>
+                <span><strong>Tarjeta de crédito</strong><small>Coordinaremos el pago después de confirmar el pedido.</small></span>
               </label>
             </fieldset>
             <label class="notes-field" data-general-notes>Comentarios sobre el pedido
@@ -145,6 +149,6 @@
   </main>
 
   <script src="assets/js/promotions.js?v=20261025-2"></script>
-  <script src="assets/js/checkout.js?v=20261114-2"></script>
+  <script src="assets/js/checkout.js?v=20261114-3"></script>
 </body>
 </html>

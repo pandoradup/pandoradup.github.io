@@ -60,15 +60,20 @@ function updatePayment(payment) {
 }
 
 function syncPaymentAvailability(delivery) {
-  const cashInput = document.querySelector('input[name="payment"][value="Efectivo"]');
-  const cashCard = document.querySelector("[data-cash-payment]");
-  const cashAvailable = delivery === STORE_PICKUP;
-  cashCard.classList.toggle("hidden", !cashAvailable);
-  cashInput.disabled = !cashAvailable;
-  if (!cashAvailable && cashInput.checked) {
-    cashInput.checked = false;
-    updatePayment("");
-  }
+  const options = [
+    ["[data-cash-payment]", delivery === STORE_PICKUP],
+    ["[data-credit-payment]", delivery === MOTO_DELIVERY || delivery === "Envío por correo Andreani"]
+  ];
+  options.forEach(([selector, available]) => {
+    const card = document.querySelector(selector);
+    const input = card.querySelector("input");
+    card.classList.toggle("hidden", !available);
+    input.disabled = !available;
+    if (!available && input.checked) {
+      input.checked = false;
+      updatePayment("");
+    }
+  });
 }
 
 function buildReceipt(form, orderNumber) {
