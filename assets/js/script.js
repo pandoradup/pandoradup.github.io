@@ -562,7 +562,7 @@ function updateCart() {
         </button>
       </div>
       <div class="cart-item-actions">
-        <strong>${window.PaymentPrices.priceMarkup(item.price * item.quantity, money)}</strong>
+        <strong>${money(item.price * item.quantity)}</strong>
         <div class="quantity-control" aria-label="Cantidad de ${escapeHtml(item.name)}">
           <button type="button" data-decrease="${escapeHtml(item.cartKey)}" aria-label="Restar uno">−</button>
           <span>${item.quantity} UN.</span>
@@ -578,10 +578,10 @@ function updateCart() {
       <strong>✓ Promo: ${escapeHtml(application.name)}${application.applications > 1 ? ` ×${application.applications}` : ""}</strong>
       <span>${application.gift
         ? `Incluye ${escapeHtml(application.gift)} de regalo`
-        : `Ahorrás ${money(application.saving)} · Precio promo ${window.PaymentPrices.priceMarkup(application.promotionalAmount, money)}`}</span>
+        : `Ahorrás ${money(application.saving)} · Precio promo ${money(application.promotionalAmount)}`}</span>
     </div>`).join("");
   document.querySelector("[data-cart-subtotal]").textContent = money(pricing.subtotal);
-  document.querySelector("[data-cart-total]").innerHTML = window.PaymentPrices.priceMarkup(pricing.total, money);
+  document.querySelector("[data-cart-total]").textContent = money(pricing.total);
   localStorage.setItem("pandoraCart", JSON.stringify(cart));
   localStorage.setItem("pandoraPricing", JSON.stringify(pricing));
 }

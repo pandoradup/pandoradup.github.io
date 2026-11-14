@@ -21,7 +21,7 @@ window.PaymentPrices = (() => {
   function priceMarkup(basePrice, formatBase) {
     return `<span class="payment-prices">
       <span>${formatBase(basePrice)} <small>Ef./Transf.</small></span>
-      <span class="payment-price-card">Tarjeta · Hasta 3 cuotas</span>
+      <span class="payment-price-card">Hasta 3 cuotas con tarjeta · Precio según el plan</span>
     </span>`;
   }
 
