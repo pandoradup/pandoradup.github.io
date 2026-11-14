@@ -222,11 +222,7 @@
           <details class="settings-accordion">
             <summary>Contacto</summary>
             <form class="content-form" data-content-section-form>
-              <label>Subtítulo superior<input name="contact_kicker" value="CONTACTANOS" required></label>
-              <label>Título<textarea name="contact_title" rows="3" required>¿Tenés dudas? Te ayudamos por WhatsApp.</textarea></label>
-              <label>Párrafo<textarea name="contact_description" rows="3" required>Te acompañamos por WhatsApp para que armes una pulsera única.</textarea></label>
-              <label>Texto del botón<input name="contact_button_text" value="ESCRIBIR POR WHATSAPP" required></label>
-              <label>Destino del botón<input name="contact_button_url" value="https://wa.me/5492915072517?text=Hola%2C%20quiero%20hacer%20una%20consulta%20sobre%20un%20art%C3%ADculo" required></label>
+              <label>Destino del botón<input name="contact_button_url" type="url" pattern="https://wa[.]me/[0-9]+([?].*)?" value="https://wa.me/5492915072517?text=Hola%2C%20quiero%20hacer%20una%20consulta%20sobre%20un%20art%C3%ADculo" required></label>
               <button type="submit">GUARDAR CONTACTO</button><p class="form-message" data-content-message></p>
             </form>
           </details>

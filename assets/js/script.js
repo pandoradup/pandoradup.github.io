@@ -138,7 +138,7 @@ function renderMainMenu() {
     </div>
     <a href="index.html#promos">Promos</a>
     <a href="index.html#materiales">Materiales</a>
-    <a href="index.html#contacto">Contacto</a>`;
+    <a href="${escapeHtml(document.querySelector("[data-contact-button]").href)}" target="_blank" rel="noopener">Contacto</a>`;
 }
 
 function promotionRequirementText(requirement) {
@@ -354,9 +354,9 @@ function applyStoreContent(content) {
       return;
     }
     if (item.key === "contact_button_url") {
-      const safeDestination = /^(?:https?:\/\/[^\s]+|#[a-z0-9_-]+|[a-z0-9][a-z0-9._/-]*(?:[?#].*)?)$/i.test(item.value) &&
-        !item.value.includes("..");
-      if (safeDestination) document.querySelector("[data-contact-button]").href = item.value;
+      if (/^https:\/\/wa\.me\/\d+(?:\?[^\s]*)?$/i.test(item.value)) {
+        document.querySelector("[data-contact-button]").href = item.value;
+      }
       return;
     }
     const element = document.querySelector(`[data-content="${item.key}"]`);
