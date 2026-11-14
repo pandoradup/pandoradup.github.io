@@ -58,11 +58,11 @@ button { color: inherit; cursor: pointer; }
 .hero { min-height: 560px; height: calc(100vh - 161px); max-height: 720px; position: relative; display: grid; grid-template-columns: 57% 43%; grid-template-rows: minmax(0, 1fr); margin: 0; padding: 0; background: #d4b1a6; overflow: hidden; }
 .hero {
   background-image:
-    radial-gradient(ellipse 13px 10px at 18px 19px, transparent 74%, #855f5421 83%, #fff5ec45 94%, transparent 100%),
-    radial-gradient(ellipse 8px 6px at 49px 45px, transparent 69%, #855f541a 81%, #fff5ec38 93%, transparent 100%),
+    radial-gradient(ellipse 13px 10px at 18px 19px, transparent 74%, #75463e65 83%, #fff5ec96 94%, transparent 100%),
+    radial-gradient(ellipse 8px 6px at 49px 45px, transparent 69%, #75463e50 81%, #fff5ec80 93%, transparent 100%),
     radial-gradient(circle at 49px 14px, #fff5ec55 1px, transparent 2px),
     radial-gradient(circle at 22px 47px, #855f5425 1px, transparent 2px),
-    repeating-linear-gradient(117deg, #fff5ec1a 0 1px, transparent 1px 4px);
+    repeating-linear-gradient(117deg, #fff5ec35 0 1px, transparent 1px 4px);
   background-size: 66px 62px, 66px 62px, 66px 62px, 66px 62px, auto; }
 .hero-image { align-self: stretch; background: var(--cream) center/cover no-repeat; }
 .hero-copy > [data-hero-button] { margin-top: 28px; }
