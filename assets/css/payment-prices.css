@@ -9,6 +9,14 @@
   font-weight: 500;
 }
 .payment-prices small { white-space: nowrap; }
-.payment-price-card { color: #68625c; }
+.payment-price-card { color: #68625c; font-size: max(9px, .65em); }
 .payment-price-card small { font-size: 1em; }
-.payment-price-selected { font-weight: 700; }
+
+.payment-plans {
+  margin-top: .65rem;
+  color: #68625c;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+.payment-plans summary { cursor: pointer; }
+.payment-plans ul { margin: .4rem 0; padding-inline-start: 1.15rem; }

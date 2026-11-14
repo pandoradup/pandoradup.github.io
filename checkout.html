@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/checkout.css?v=20261114-1">
-  <link rel="stylesheet" href="assets/css/payment-prices.css?v=1">
+  <link rel="stylesheet" href="assets/css/payment-prices.css?v=3">
 </head>
 <body>
   <header class="checkout-header">
@@ -106,6 +106,13 @@
                 <span><strong>Tarjeta de crédito</strong><small>Coordinaremos el pago después de confirmar el pedido.</small></span>
               </label>
             </fieldset>
+            <label class="hidden" data-credit-plans>Cuotas con tarjeta
+              <select name="installments" disabled required>
+                <option value="1">1 pago</option>
+                <option value="2">2 cuotas</option>
+                <option value="3">3 cuotas</option>
+              </select>
+            </label>
             <label class="notes-field" data-general-notes>Comentarios sobre el pedido
               <textarea name="notes" rows="3" placeholder="Indicaciones de entrega, horarios, etc."></textarea>
             </label>
@@ -150,7 +157,7 @@
   </main>
 
   <script src="assets/js/promotions.js?v=20261025-2"></script>
-  <script src="assets/js/payment-prices.js?v=1"></script>
-  <script src="assets/js/checkout.js?v=20261114-4"></script>
+  <script src="assets/js/payment-prices.js?v=2"></script>
+  <script src="assets/js/checkout.js?v=20261114-7"></script>
 </body>
 </html>

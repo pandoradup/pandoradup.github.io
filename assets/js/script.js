@@ -290,6 +290,9 @@ function openProductDetail(product) {
   document.querySelector("[data-product-detail-category]").textContent = product.category;
   document.querySelector("[data-product-detail-price]").innerHTML =
     `${product.old ? `<del>${money(product.old)}</del>` : ""}${window.PaymentPrices.priceMarkup(product.price, money)}`;
+  document.querySelector("[data-product-plans]").open = false;
+  document.querySelector("[data-product-plan-list]").innerHTML = [1, 2, 3]
+    .map(count => `<li>${window.PaymentPrices.planLabel(product.price, count)}</li>`).join("");
   const stock = productAvailableStock(product);
   document.querySelector("[data-product-detail-stock]").textContent = stock === 0 ? "Sin stock" : "";
   const sizeField = document.querySelector("[data-product-size-field]");
@@ -577,7 +580,7 @@ function updateCart() {
         ? `Incluye ${escapeHtml(application.gift)} de regalo`
         : `Ahorrás ${money(application.saving)} · Precio promo ${window.PaymentPrices.priceMarkup(application.promotionalAmount, money)}`}</span>
     </div>`).join("");
-  document.querySelector("[data-cart-subtotal]").innerHTML = window.PaymentPrices.priceMarkup(pricing.subtotal, money);
+  document.querySelector("[data-cart-subtotal]").textContent = money(pricing.subtotal);
   document.querySelector("[data-cart-total]").innerHTML = window.PaymentPrices.priceMarkup(pricing.total, money);
   localStorage.setItem("pandoraCart", JSON.stringify(cart));
   localStorage.setItem("pandoraPricing", JSON.stringify(pricing));

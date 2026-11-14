@@ -10,7 +10,7 @@ const money = value => new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0
 }).format(value || 0);
 
-const orderTotal = order => order.payment_method === window.PaymentPrices.creditMethod
+const orderTotal = order => order.payment_method?.startsWith(window.PaymentPrices.creditMethod)
   ? window.PaymentPrices.cardMoney.format(order.total)
   : money(order.total);
 

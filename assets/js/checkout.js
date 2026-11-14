@@ -29,7 +29,7 @@ function groupCart(items) {
   }, {}));
 }
 
-const { cardPrice, cardMoney, creditMethod, priceMarkup } = window.PaymentPrices;
+const { cardPrice, cardMoney, creditMethod, planLabel } = window.PaymentPrices;
 
 let groupedItems = groupCart(cart);
 let promotions = window.PromotionEngine.parse(localStorage.getItem("pandoraPromotions"));
@@ -43,11 +43,11 @@ function renderSummary() {
     <article class="summary-item">
       <img src="${escapeHtml(item.image || item.image_url)}" alt="">
       <div><h3>${escapeHtml(item.name)}</h3><p>${item.size ? `Talle: ${escapeHtml(item.size)} · ` : ""}Cantidad: ${item.quantity}</p></div>
-      <strong>${priceMarkup(item.price * item.quantity, money)}</strong>
+      <strong>${money(item.price * item.quantity)}</strong>
     </article>
   `).join("");
-  document.querySelector("[data-subtotal]").innerHTML = priceMarkup(promotionPricing.subtotal, money);
-  document.querySelector("[data-total]").innerHTML = priceMarkup(subtotal, money, selectedPayment);
+  document.querySelector("[data-subtotal]").textContent = money(promotionPricing.subtotal);
+  document.querySelector("[data-total]").textContent = selectedPayment === creditMethod ? cardMoney.format(total) : money(total);
   const promotionSummary = document.querySelector("[data-promotion-summary]");
   promotionSummary.classList.toggle("hidden", promotionPricing.applications.length === 0);
   promotionSummary.innerHTML = promotionPricing.applications.map(application =>
@@ -57,8 +57,22 @@ function renderSummary() {
 
 function updatePayment(payment) {
   selectedPayment = payment || "";
-  total = selectedPayment === creditMethod ? cardPrice(subtotal) : subtotal;
-  document.querySelector("[data-total]").innerHTML = priceMarkup(subtotal, money, selectedPayment);
+  const plans = document.querySelector("[data-credit-plans]");
+  const select = plans.querySelector("select");
+  const payingByCard = selectedPayment === creditMethod;
+  plans.classList.toggle("hidden", !payingByCard);
+  select.disabled = !payingByCard;
+  for (const option of select.options) option.textContent = planLabel(subtotal, Number(option.value));
+  total = payingByCard ? cardPrice(subtotal, Number(select.value)) : subtotal;
+  document.querySelector("[data-total]").textContent = selectedPayment === creditMethod ? cardMoney.format(total) : money(total);
+}
+
+document.querySelector('[name="installments"]').addEventListener("change", () => updatePayment(selectedPayment));
+
+function paymentDescription() {
+  if (selectedPayment !== creditMethod) return selectedPayment;
+  const installments = Number(document.querySelector('[name="installments"]').value);
+  return `${creditMethod} · ${installments === 1 ? "1 pago" : `${installments} cuotas`}`;
 }
 
 function syncPaymentAvailability(delivery) {
@@ -112,7 +126,7 @@ Subtotal productos: ${money(promotionPricing.subtotal)}
 Descuento promociones: -${money(promotionPricing.discount)}
 TOTAL: ${selectedPayment === creditMethod ? cardMoney.format(total) : money(total)}
 Entrega: ${deliveryDetails}
-Forma de pago: ${selectedPayment}
+Forma de pago: ${paymentDescription()}
 ${notesLine}`;
 }
 
@@ -160,7 +174,7 @@ async function saveOrder(form, orderNumber) {
     address: delivery !== STORE_PICKUP ? form.get("address") : null,
     city: delivery !== STORE_PICKUP ? form.get("city") : null,
     postal_code: delivery !== STORE_PICKUP ? form.get("postal_code") : null,
-    payment_method: selectedPayment,
+    payment_method: paymentDescription(),
     notes: form.get("notes") || null,
     subtotal: promotionPricing.subtotal,
     discount: promotionPricing.discount,
