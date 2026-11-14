@@ -8,11 +8,11 @@
       <circle cx="4.6" cy="-18" r="1.6" fill="currentColor"/>
     </g>
   </defs>
-  <use href="#monogram" color="#cba398" transform="translate(31 39) rotate(-24) scale(.86)"/>
-  <use href="#monogram" color="#dfbeb3" transform="translate(103 27) rotate(32) scale(.49)"/>
-  <use href="#monogram" color="#cba398" transform="translate(180 54) rotate(18) scale(1.03)"/>
-  <use href="#monogram" color="#dfbeb3" transform="translate(33 132) rotate(66) scale(.5)"/>
-  <use href="#monogram" color="#cba398" transform="translate(110 102) rotate(-48) scale(.63)"/>
-  <use href="#monogram" color="#dfbeb3" transform="translate(98 157) rotate(15) scale(.53)"/>
-  <use href="#monogram" color="#cba398" transform="translate(184 140) rotate(147) scale(.76)"/>
+  <use href="#monogram" color="#cda89d" transform="translate(31 39) rotate(-24) scale(.86)"/>
+  <use href="#monogram" color="#dbbaaf" transform="translate(103 27) rotate(32) scale(.49)"/>
+  <use href="#monogram" color="#cda89d" transform="translate(180 54) rotate(18) scale(1.03)"/>
+  <use href="#monogram" color="#dbbaaf" transform="translate(33 132) rotate(66) scale(.5)"/>
+  <use href="#monogram" color="#cda89d" transform="translate(110 102) rotate(-48) scale(.63)"/>
+  <use href="#monogram" color="#dbbaaf" transform="translate(98 157) rotate(15) scale(.53)"/>
+  <use href="#monogram" color="#cda89d" transform="translate(184 140) rotate(147) scale(.76)"/>
 </svg>
