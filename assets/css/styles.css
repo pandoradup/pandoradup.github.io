@@ -57,7 +57,7 @@ button { color: inherit; cursor: pointer; }
 
 .hero { min-height: 560px; height: calc(100vh - 161px); max-height: 720px; position: relative; display: grid; grid-template-columns: 57% 43%; grid-template-rows: minmax(0, 1fr); margin: 0; padding: 0; overflow: hidden; }
 .hero, .editorial { background: #d4b1a6 url("../images/hero-monogram.svg?v=2"); }
-.hero-image { align-self: stretch; background: var(--cream) center/cover no-repeat; }
+.hero-image { align-self: stretch; background: center/cover no-repeat; }
 .hero-copy > [data-hero-button] { margin-top: 28px; }
 .hero-copy { align-self: center; padding: clamp(42px, 5vw, 72px); max-width: 620px; }
 @media (min-width: 1001px) {
