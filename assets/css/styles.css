@@ -121,7 +121,22 @@ h1 em, h2 em { font-weight: 400; color: #8f726a; }
 .card-photo-next { right: 6px; }
 .card-photo-count { position: absolute; top: 12px; right: 10px; padding: 5px 7px; background: rgba(251,250,246,.9); font-size: 9px; pointer-events: none; }
 .product-badge { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 7px 9px; background: var(--paper); font-size: 8px; letter-spacing: 1.3px; }
-.product-badge.out-of-stock { color: #77736d; background: rgba(238,238,238,.96); font-weight: 600; }
+.product-stock-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: 170%;
+  transform: translate(-50%, -50%) rotate(-52deg);
+  padding: 9px 0;
+  background: rgba(139, 43, 53, .92);
+  color: #fff;
+  text-align: center;
+  font-size: clamp(11px, 1.8vw, 17px);
+  font-weight: 700;
+  letter-spacing: .14em;
+  pointer-events: none;
+}
 .product-badge.low-stock { color: #b3261e; background: rgba(251,250,246,.96); font-weight: 600; }
 .quick-add { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 12px; min-height: 43px; border: 0; background: rgba(251,250,246,.94); font-size: 9px; letter-spacing: 1.2px; opacity: 0; transform: translateY(8px); transition: .3s; }
 .product-card:hover .quick-add, .quick-add:focus { opacity: 1; transform: none; }

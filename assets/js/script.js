@@ -244,13 +244,11 @@ function renderProducts() {
         </div>
         ${photos.length > 1 ? `<button type="button" class="card-photo-arrow card-photo-prev" data-card-photo="-1" aria-label="Foto anterior">‹</button><button type="button" class="card-photo-arrow card-photo-next" data-card-photo="1" aria-label="Foto siguiente">›</button><span class="card-photo-count" data-card-photo-count>1 / ${photos.length}</span>` : ""}
         ${availableStock === 0
-          ? `<span class="product-badge out-of-stock">SIN STOCK</span>`
+          ? `<span class="product-stock-ribbon">SIN STOCK</span>`
           : availableStock <= 2
             ? `<span class="product-badge low-stock">¡QUEDAN POCOS!</span>`
             : product.badge ? `<span class="product-badge">${product.badge}</span>` : ""}
-        <button class="quick-add" data-add="${product.id}" ${availableStock === 0 ? "disabled" : ""}>
-          ${availableStock === 0 ? "SIN STOCK" : "AGREGAR A LA BOLSA +"}
-        </button>
+        ${availableStock > 0 ? `<button class="quick-add" data-add="${product.id}">AGREGAR A LA BOLSA +</button>` : ""}
       </div>
       <div class="product-info" data-product-open="${product.id}">
         <h3>${escapeHtml(product.name)}</h3>
