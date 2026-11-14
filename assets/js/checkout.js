@@ -230,6 +230,7 @@ function syncDeliveryFields(delivery) {
   const isAndreani = delivery === "Envío por correo Andreani";
   const isMoto = delivery === MOTO_DELIVERY;
   const needsAddress = isAndreani || isMoto;
+  document.querySelector("[data-delivery-payment-notice]").classList.toggle("hidden", !needsAddress);
   document.querySelector("[data-address-fields]").classList.toggle("hidden", !needsAddress);
   document.querySelector("[data-andreani-tools]").classList.toggle("hidden", !isAndreani);
   const address = document.querySelector('[name="address"]');

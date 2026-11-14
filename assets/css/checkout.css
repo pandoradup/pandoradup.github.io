@@ -83,3 +83,13 @@ legend { margin-bottom: 12px; font-size: 13px; font-weight: 600; }
   .step-content { padding: 0 20px 24px; }
   .receipt-actions { flex-direction: column; gap: 0; }
 }
+
+.delivery-payment-notice {
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  border-left: 3px solid currentColor;
+  background: #fff4f2;
+  color: #962b25;
+  font-size: 13px;
+  line-height: 1.5;
+}
