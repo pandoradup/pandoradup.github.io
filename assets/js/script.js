@@ -377,7 +377,7 @@ function applyStoreContent(content) {
     }
     const image = document.querySelector(`[data-content-image="${item.key}"]`);
     if (image) {
-      setStoreBackground(image, item.value, item.key === "hero_image");
+      setStoreBackground(image, item.value, item.key === "hero_image" || image.closest(".editorial"));
       const x = contentValues[`${item.key}_position_x`] || 50;
       const y = contentValues[`${item.key}_position_y`] || 50;
       image.style.backgroundPosition = `${x}% ${y}%`;
