@@ -15,18 +15,8 @@ window.PaymentPrices = (() => {
   function planLabel(basePrice, installments) {
     const total = cardPrice(basePrice, installments);
     if (installments === 1) return `1 pago de ${cardMoney.format(total)}`;
-    const totalCents = Math.round(total * 100);
-    const installmentCents = Math.floor(totalCents / installments);
-    const extraCentCount = totalCents % installments;
-    const regularAmount = cardMoney.format(installmentCents / 100);
-    const totalLabel = ` · Total ${cardMoney.format(total)}`;
-    if (extraCentCount === 0) {
-      return `${installments} cuotas de ${regularAmount}${totalLabel}`;
-    }
-
-    const higherAmount = cardMoney.format((installmentCents + 1) / 100);
-    const regularCount = installments - extraCentCount;
-    return `${installments} cuotas · ${extraCentCount} × ${higherAmount} + ${regularCount} × ${regularAmount}${totalLabel}`;
+    const installmentAmount = cardMoney.format(total / installments);
+    return `${installments} cuotas de ${installmentAmount} · Total ${cardMoney.format(total)}`;
   }
 
   function priceMarkup(basePrice, formatBase) {
